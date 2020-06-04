@@ -1,10 +1,12 @@
 Suche und Aufnahme-Programmierung im "seriellen" digitalen TV-Programm
-Stichwortsuche in Titeln, Untertiteln, Beschreibungen von TV-Sendungen
-Filter nach Sendedatum und -zeit(Intervall), Sender u.ä.
-Suchfelder sollen dynamisch ausgewählt und kombiniert werden können (und, oder, Negation).
-Autocompletion in Suchfeldern, Fazetten, Datepicker und Sortierkriterien
-Fazettierte Suche in 
-					Datumsbereichen -> "heute, morgen, nächste n Tage;
-					Sendergruppen 	-> öffentlich-rechtlich, privat, Radio;
-					Tageszeit 		-> Vormittag/Nachmittag/Abend/Nacht;
-					
+	Stichwortsuche 		in Titeln, Untertiteln, Beschreibungen von TV-Sendungen
+	Filter 				nach Sendedatum und -zeit(Intervall), Sender u.ä.
+	Suchfelder sollen dynamisch ausgewählt und kombiniert werden können (und, oder, Negation).
+	Autocompletion in 	Suchfeldern, Fazetten, Datepicker und Sortierkriterien
+	Fazettierte Suche in 
+			Datumsbereichen -> "heute, morgen, nächste n Tage;
+			Sendergruppen 	-> öffentlich-rechtlich, privat, Radio;
+			Tageszeit 		-> Vormittag/Nachmittag/Abend/Nacht;
+
+	mit Regex automatisierte Links für Darstellernamen u.ä. in der IMDB sowie tentative Wikipedia- und Mediathek-URLs einfügen
+	Desktop- oder Mobile (resposive gibt Bonus-Punkte)
