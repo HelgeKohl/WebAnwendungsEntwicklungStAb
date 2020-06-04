@@ -17,4 +17,4 @@ REM stoppe Solr
 call bin\solr stop -p 8983
 
 REM kopiere Solr-conf zu project-dir
-REM XCOPY /Y /I /E E:\Programme\solr-8.5.2\server\solr\epg\conf\schema.xml D:\Dokumente\S6\WAE\Studienarbeit\Abgabeverzeichnisstruktur\Kohl_Helge\src\solr\conf
+REM XCOPY /Y /I /E E:\Programme\solr-8.5.2\server\solr\epg\conf\schema.xml D:\Dokumente\S6\WAE\Studienarbeit\Kohl_Helge\src\solr\conf
