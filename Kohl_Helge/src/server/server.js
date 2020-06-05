@@ -9,6 +9,7 @@ http.createServer(function (request, response) {
         filePath = './static/index.html';
     }
     console.log(filePath)
+    // request handling
     if(/^\.\/static\//.test(filePath)){
         var extname = String(path.extname(filePath)).toLowerCase();
 
