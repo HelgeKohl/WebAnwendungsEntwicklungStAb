@@ -4,8 +4,18 @@
     <meta charset="utf-8">
     <title>epg</title>
     <link rel="stylesheet" href="static/css/style.css">
+    <link rel="stylesheet" href="static/css/vue-datetime.css">
 </head>
 <body>
-
+    <div id="nav">
+        <input type="text" v-bind:placeholder="test" v-model="search">
+        <datetime type="datetime" v-model="datetimeStart"></datetime>
+        <datetime type="datetime" v-model="datetimeEnd"></datetime>
+    </div>
+    <script src="static/js/vue.js"></script>
+    <script src="static/js/luxon.js"></script>
+    <script src="static/js/vue-datetime.js"></script>
+    <script src="static/js/main.js"></script>
+    
 </body>
 </html>
