@@ -10,3 +10,18 @@ Suche und Aufnahme-Programmierung im "seriellen" digitalen TV-Programm
 
 	mit Regex automatisierte Links für Darstellernamen u.ä. in der IMDB sowie tentative Wikipedia- und Mediathek-URLs einfügen
 	Desktop- oder Mobile (resposive gibt Bonus-Punkte)
+
+Datenfelder:
+	id				string		
+	channel			string
+	start			pdates
+	stop			pdates
+	title_ger		text_de
+	title_fre		text_fr
+	subtitle_ger	text_de
+	subtitle_fre	text_fr
+	desc_ger        text_de
+	desc_fre        text_fr
+	
+Stichwortsuche in title, subtitle, desc,					Textfeld(er?)
+Filter nach start, stop(intervall), Channel u.ä.			Datetime, Fazetten (Datumsbereich, Sendergruppe, Tageszeit)

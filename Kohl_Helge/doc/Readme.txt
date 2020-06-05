@@ -9,3 +9,6 @@ schema.xml angepasst
 
 managed-schema und data-Verzeichnis gelöscht
 neu indiziert
+
+batchfile zum automatisierten Solr starten und indizieren geschrieben
+Node Server vorbereitet
