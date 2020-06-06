@@ -5,16 +5,34 @@
     <title>epg</title>
     <link rel="stylesheet" href="static/css/style.css">
     <link rel="stylesheet" href="static/css/vue-datetime.css">
+    <link rel="stylesheet" href="static/css/bootstrap.css">
 </head>
 <body>
     <div id="app">
-        <input type="text" v-bind:placeholder="searchPlaceholder" v-model="search">
-        <datetime type="datetime" v-bind:placeholder="startPlaceholder" v-model="datetimeStart"></datetime>
-        <datetime type="datetime" v-bind:placeholder="endPlaceholder" v-model="datetimeEnd"></datetime>
+        <nav class="nav justify-content-center">
+            <form class="form-inline my-2 my-lg-0">
+                <input 
+                    type="text" 
+                    :placeholder="searchInput.placeholder" 
+                    v-model="searchInput.value" 
+                    class="form-control mr-sm-2">
+                <datetime 
+                    type="datetime" 
+                    :placeholder="datePicker.start.placeholder" 
+                    v-model="datePicker.start.value">
+                </datetime>
+                <datetime 
+                    type="datetime" 
+                    :placeholder="datePicker.end.placeholder"
+                    v-model="datePicker.end.value">
+                </datetime>
+            </form>
+        </nav>
     </div>
     <script src="static/js/vue.js"></script>
     <script src="static/js/luxon.js"></script>
     <script src="static/js/vue-datetime.js"></script>
     <script src="static/js/main.js"></script>
+    <!-- <script src="static/js/bootstrap.js"></script> -->
 </body>
 </html>
