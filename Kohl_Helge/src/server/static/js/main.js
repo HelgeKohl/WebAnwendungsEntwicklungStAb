@@ -1,9 +1,11 @@
 var nav = new Vue({
-    el: '#nav',
+    el: '#app',
     data: {
         search: '',
-        test: 'Suche',
+        searchPlaceholder: 'Suche',
         datetimeStart: '',
+        startPlaceholder: 'Start',
+        endPlaceholder: 'Ende',
         datetimeEnd: '',
     },
 })
