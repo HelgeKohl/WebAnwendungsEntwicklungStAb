@@ -21,18 +21,38 @@
                     class="form-control mr-sm-2">
             </div>
         </nav>
+
+        
         <div class="row">
-            <div class="col col-lg-2 px-4">
-                <datetime 
-                    type="datetime" 
-                    :placeholder="datePicker.start.placeholder" 
-                    v-model="datePicker.start.value">
-                </datetime>
-                <datetime 
-                    type="datetime" 
-                    :placeholder="datePicker.end.placeholder"
-                    v-model="datePicker.end.value">
-                </datetime>
+            <div class="col col-lg-2">
+                <div class="accordion">
+                    <div class="accordion-element" id="accordion-element-1">
+                        <div v-on:click="datePicker.visible = !datePicker.visible" class="element-header">
+                            <a>Zeitraum</a>
+                        </div>
+                        <div v-if="datePicker.visible" class="element-content">
+                            <datetime 
+                                type="datetime" 
+                                :placeholder="datePicker.start.placeholder" 
+                                v-model="datePicker.start.value">
+                            </datetime>
+                            <datetime 
+                                type="datetime" 
+                                :placeholder="datePicker.end.placeholder"
+                                v-model="datePicker.end.value">
+                            </datetime>
+                        </div>
+                    </div>
+                    <div class="accordion-element" id="accordion-element-2">
+                        <div class="element-header">
+                            
+                        </div>
+                        <div class="element-content">
+
+                        </div>
+                    </div>
+                </div>
+                
             </div>
             <div class="col col-lg-10">
                 Content
