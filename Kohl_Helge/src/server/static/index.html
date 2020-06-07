@@ -9,13 +9,20 @@
 </head>
 <body>
     <div id="app">
-        <nav class="nav justify-content-center">
-            <form class="form-inline my-2 my-lg-0">
+        <nav class="navbar navbar-light bg-nav justify-content-center shadow p-3 mb-5">
+            <div class="col col-lg-4 input-group flex-nowrap">
+                <div class="input-group-prepend">
+                    <span class="input-group-text fas fa-search">
+                </div>
                 <input 
                     type="text" 
                     :placeholder="searchInput.placeholder" 
                     v-model="searchInput.value" 
                     class="form-control mr-sm-2">
+            </div>
+        </nav>
+        <div class="row">
+            <div class="col col-lg-2 px-4">
                 <datetime 
                     type="datetime" 
                     :placeholder="datePicker.start.placeholder" 
@@ -26,13 +33,20 @@
                     :placeholder="datePicker.end.placeholder"
                     v-model="datePicker.end.value">
                 </datetime>
-            </form>
-        </nav>
+            </div>
+            <div class="col col-lg-10">
+                Content
+            </div>
+        </div>
+        
+        
+        
     </div>
     <script src="static/js/vue.js"></script>
     <script src="static/js/luxon.js"></script>
     <script src="static/js/vue-datetime.js"></script>
     <script src="static/js/main.js"></script>
+    <script src="https://kit.fontawesome.com/072a7506e7.js" crossorigin="anonymous"></script>
     <!-- <script src="static/js/bootstrap.js"></script> -->
 </body>
 </html>
