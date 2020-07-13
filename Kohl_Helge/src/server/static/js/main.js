@@ -6,6 +6,7 @@ datetime.options.props.inputClass.default = "form-control mr-sm-2"
 var filter = new Vue({
     el: '#app',
     data: {
+        activeSide: "search",
         searchInput:{
             value: '',
             placeholder: 'Suche'
@@ -23,4 +24,3 @@ var filter = new Vue({
         },
     },
 })
-

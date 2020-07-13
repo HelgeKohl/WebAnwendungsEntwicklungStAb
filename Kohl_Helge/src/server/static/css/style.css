@@ -1,5 +1,11 @@
 body {
-    margin: 0px;
+    background-color: #f0f2f5;
+    margin: 0;
+    padding: 0;
+}
+
+#app {
+    background-color: #f0f2f5;
 }
 
 span.fas {
@@ -10,12 +16,36 @@ span.fas {
     background-color: #3f51b5;
 }
 
+.accordion {
+    margin: 10px;
+    background-color: rgb(80, 103, 235);
+    border-radius: 8px;
+    padding-top: 8px;
+}
+
 .accordion-element .element-header{
-    background-color: #3f51b5;
-    padding: 7px 10px 7px 10px ;
+    transition: all .3s ease;
+    margin: 0px 10px 0px 10px ;
+    padding-bottom: 8px;
+    background-color: rgb(80, 103, 235);
 }
 
 .accordion-element .element-content{
-    margin: 7px 10px 7px 10px ;
+    background-color: #f0f2f5;
+    margin-top: 8px;
+    padding: 7px 10px 7px 10px ;
+    border-bottom-left-radius: 8px;
+    border-bottom-right-radius: 8px;
 }
 
+.slide-fade-enter-active {
+    transition: all .3s ease;
+}
+.slide-fade-leave-active {
+    transition: all .3s ease;
+}
+.slide-fade-enter, .slide-fade-leave-to
+/* .slide-fade-leave-active below version 2.1.8 */ {
+    transform: translateY(-10px);
+    opacity: 0;
+}
