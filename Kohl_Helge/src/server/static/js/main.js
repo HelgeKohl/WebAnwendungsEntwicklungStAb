@@ -6,9 +6,37 @@ var filter = new Vue({
     el: '#app',
     data: {
         activeSide: "search",
-        searchInput:{
-            value: '',
-            placeholder: 'Suche'
+        keywords:{
+            types: [
+                'Titel',
+                'Untertitel',
+                'Beschreibung'
+            ],
+            concatTypes: [
+                'und',
+                'oder'
+            ],
+            data: [
+                {   
+                    negate: false,
+                    concatType: '',
+                    type: 'Titel',
+                    input: ''
+                },
+            ],
+        },
+        channels:{
+            concatTypes: [
+                'und',
+                'oder'
+            ],
+            data: [
+                {   
+                    negate: false,
+                    concatType: '',
+                    input: ''
+                },
+            ],
         },
         datePicker:{
             visible: false,
@@ -22,4 +50,19 @@ var filter = new Vue({
             },
         },
     },
+    methods:{
+        addKeywordInput() {
+            filter.keywords.data.push({negate: false, concatType: 'und', type: 'Titel', input: ''})
+        },
+        removeKeywordInput(item) {
+            filter.keywords.data.splice(filter.keywords.data.indexOf(item),1)
+        },
+        addChannelInput() {
+            filter.channels.data.push({negate: false, concatType: 'und', input: ''})
+        },
+        removeChannelInput(item) {
+            filter.channels.data.splice(filter.channels.data.indexOf(item),1)
+        },
+    }
 })
+

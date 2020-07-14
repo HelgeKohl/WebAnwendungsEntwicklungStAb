@@ -2,41 +2,180 @@
 <html>
 <head>
     <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>epg</title>
     <link rel="stylesheet" href="static/css/style.css">
     <link rel="stylesheet" href="static/css/vue-datetime.css">
     <link rel="stylesheet" href="static/css/bootstrap.css">
+    <link rel="stylesheet" href="static/css/bootstrap-vue.css">
+
+    <script src="static/js/vue.js"></script>
+    <script src="static/js/bootstrap-vue.js"></script>
 </head>
 <body>
     <div id="app">
-        <nav class="navbar navbar-light bg-nav shadow p-3 mb-4">
-            <a class="navbar-brand" href="#">Navbar</a>
-            <ul class="navbar-nav mr-auto">
-                <li class="nav-item active">
-                    <a class="nav-link" href="#">Suche<span class="sr-only">(current)</span></a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#">Suchergebnisse</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#">Einstellungen</a>
-                </li>                
-            </ul>
-        </nav>
+        <!-- Navbar -->
+        <b-navbar type="dark" variant="dark" class="justify-content-center">
+            <b-navbar-nav>
+                <b-nav-item 
+                    v-bind:class="{ active: activeSide==='search' }" 
+                    v-on:click="activeSide = 'search'">
+                        <span class="fas fa-search"></span>
+                </b-nav-item>
+                <b-nav-item 
+                    v-bind:class="{ active: activeSide==='result' }" 
+                    v-on:click="activeSide = 'result'">
+                        <span class="fas fa-list"></span>
+                </b-nav-item>
+                <b-nav-item 
+                    v-bind:class="{ active: activeSide==='settings' }" 
+                    v-on:click="activeSide = 'settings'">
+                        <span class="fas fa-user-cog"></span>
+                </b-nav-item>
+            </b-navbar-nav>
+        </b-navbar>
+        <!-- Navbar end -->
+
+        <!-- searchmenu -->
         <div v-if="activeSide==='search'"> 
-            Suche
+            <b-container class="pt-3">
+                <b-card>
+                    <b-card-header header-tag="header" class="p-1" role="tab">
+                        <b-button block v-b-toggle.collapse-1>Titel, Untertitel und Beschreibung</b-button>
+                    </b-card-header>
+                    <b-card-body>
+                        <b-collapse id="collapse-1" class="mt-2">
+                            <b-button class="mb-3" 
+                                    v-on:click="addKeywordInput">
+                                Stichwortsuche hinzufügen
+                            </b-button>
+                            <!-- keyword search -->
+                            <div v-for="item in keywords.data">
+                                <!-- selectiontype -->
+                                <b-input-group class="mt-3">
+                                    <select class="form-control"
+                                            v-if="keywords.data.indexOf(item) != 0"
+                                            v-model:value="item.concatType">
+                                        <option v-for="type in keywords.concatTypes">
+                                            {{type}}
+                                        </option>
+                                    </select>
+                                    <select class="form-control"
+                                            v-model:value="item.negate">
+                                        <option v-bind:value="false">enthält</option>
+                                        <option v-bind:value="true">enthält nicht</option>
+                                    </select>
+                                    <div class="input-group-append">
+                                        <b-button class="form-controll"
+                                                v-bind:disabled="keywords.data.indexOf(item) == 0"
+                                                v-on:click="removeKeywordInput(item)">
+                                            <span class="fas fa-trash-alt"></span>
+                                        </b-button>
+                                    </div>
+                                </b-input-group>
+                                <!-- selection -->
+                                <b-input-group class="mb-2">
+                                    <template v-slot:prepend>
+                                        <select class="form-control" 
+                                                v-model:value="item.type">
+                                            <option v-for="type in keywords.types">
+                                                {{type}}
+                                            </option>
+                                        </select>
+                                    </template>
+                                    <input type="text" 
+                                        v-model:value="item.input" 
+                                        class="form-control">
+                                    </input>
+                                    
+                                </b-input-group>
+                            </div>
+                        </b-collapse>
+                    </b-card-body>
+                </b-card>
+            </b-container>
+            <!-- keyword search end -->
+            <!-- channel -->
+            <b-container class="pt-3">
+                <b-card>
+                    <b-card-header header-tag="header" class="p-1" role="tab">
+                        <b-button block v-b-toggle.collapse-2>Sender</b-button>
+                    </b-card-header>
+                    <b-card-body>
+                        <b-collapse id="collapse-2" class="mt-2">
+                            <b-button class="mb-3" 
+                                    v-on:click="addChannelInput">
+                                Sender hinzufügen
+                            </b-button>
+                            <div v-for="item in channels.data">
+                                <!-- selectiontype -->
+                                <b-input-group class="mt-3">
+                                    <select class="form-control"
+                                            v-if="channels.data.indexOf(item) != 0"
+                                            v-model:value="item.concatType">
+                                        <option v-for="type in channels.concatTypes">
+                                            {{type}}
+                                        </option>
+                                    </select>
+                                    <select class="form-control"
+                                            v-model:value="item.negate">
+                                        <option v-bind:value="false">enthält</option>
+                                        <option v-bind:value="true">enthält nicht</option>
+                                    </select>
+                                    <div class="input-group-append">
+                                        <b-button class="form-controll"
+                                                v-bind:disabled="channels.data.indexOf(item) == 0"
+                                                v-on:click="removeChannelInput(item)">
+                                            <span class="fas fa-trash-alt"></span>
+                                        </b-button>
+                                    </div>
+                                </b-input-group>
+                                <!-- selection -->
+                                <b-input-group class="mb-2">
+                                    <input type="text" 
+                                        v-model:value="item.input" 
+                                        class="form-control">
+                                    </input>
+                                </b-input-group>
+                            </div>
+                        </b-collapse>
+                    </b-card-body>
+                </b-card>
+            </b-container>
+            <!-- channel end -->
+            <!-- preset -->
+            <b-container class="pt-3">
+                <b-card>
+                    <b-card-header header-tag="header" class="p-1" role="tab">
+                        <b-button block v-b-toggle.collapse-3>preset</b-button>
+                    </b-card-header>
+                    <b-card-body>
+                        <b-collapse id="collapse-3" class="mt-2">
+
+                        </b-collapse>
+                    </b-card-body>
+                </b-card>
+            </b-container>
+            <!-- preset -->
         </div>
+        <!-- searchmenu end -->
+        <!-- result menu -->
         <div v-if="activeSide==='result'"> 
             Suchergebnisse
         </div>
+        <!-- result menu end -->
+        <!-- settings menu -->
         <div v-if="activeSide==='settings'"> 
             Einstellungen
         </div>
+        <!-- settings menu end -->
     </div>
-    <script src="static/js/vue.js"></script>
+
     <script src="static/js/luxon.js"></script>
     <script src="static/js/vue-datetime.js"></script>
     <script src="static/js/main.js"></script>
-    <script src="https://kit.fontawesome.com/072a7506e7.js" crossorigin="anonymous"></script>
+    <script src="https://kit.fontawesome.com/072a7506e7.js" 
+            crossorigin="anonymous">
+    </script>
 </body>
 </html>

@@ -16,36 +16,22 @@ span.fas {
     background-color: #3f51b5;
 }
 
-.accordion {
-    margin: 10px;
-    background-color: rgb(80, 103, 235);
-    border-radius: 8px;
-    padding-top: 8px;
+.nav-link span{
+    font-size: 1.5rem;
 }
 
-.accordion-element .element-header{
-    transition: all .3s ease;
-    margin: 0px 10px 0px 10px ;
-    padding-bottom: 8px;
-    background-color: rgb(80, 103, 235);
+.nav-link {
+    padding: 0rem 0.5rem 0rem 0.5rem !important;
 }
 
-.accordion-element .element-content{
-    background-color: #f0f2f5;
-    margin-top: 8px;
-    padding: 7px 10px 7px 10px ;
-    border-bottom-left-radius: 8px;
-    border-bottom-right-radius: 8px;
+button span {
+    padding: 0 !important;
 }
 
-.slide-fade-enter-active {
-    transition: all .3s ease;
+.card-body .card-body {
+    padding: 0 !important;
 }
-.slide-fade-leave-active {
-    transition: all .3s ease;
-}
-.slide-fade-enter, .slide-fade-leave-to
-/* .slide-fade-leave-active below version 2.1.8 */ {
-    transform: translateY(-10px);
-    opacity: 0;
+
+.card-header{
+    background-color: white !important;
 }
