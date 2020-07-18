@@ -3,7 +3,9 @@
   "version": "1.0.0",
   "description": "",
   "dependencies": {
-    "nodemon": "^2.0.4"
+    "axios": "^0.19.2",
+    "nodemon": "^2.0.4",
+    "solr-node": "^1.2.1"
   },
   "main": "server.js",
   "scripts": {
