@@ -17,7 +17,7 @@ function buildQuery(data){
             if(element.negate){
                 query += "-";
             }
-            query += element.type + "_" + data['language'] + ":" + "\"" + element.input + "\"";
+            query += element.type + "_" + data['language'] + ":\"" + element.input + "\"";
         }
     });
 
@@ -33,8 +33,11 @@ function buildQuery(data){
         }
     });
 
+    // empty query needs to search only right language
+    if(query === "") query = "title_" + data['language'] + ":* AND subtitle_" + data['language'] + ":*";
     var startrange = " AND start:[" + data['start'].from + " TO " + data['start'].till + "]";
     var stoprange = " AND stop:[" + data['stop'].from + " TO " + data['stop'].till + "]";
+    
 
     query = url + escape(query+startrange+stoprange);
     query += "&rows=10" + "&start=" + (data['rows'] - 10)
