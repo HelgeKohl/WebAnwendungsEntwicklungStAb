@@ -66,7 +66,7 @@
                                 Stichwortsuche hinzufügen
                             </b-button>
                             <!-- keyword search -->
-                            <div v-for="item in keywords.data">
+                            <div v-for="(item, index) in keywords.data">
                                 <!-- selectiontype -->
                                 <b-input-group class="mt-3">
                                     <!-- concat type -->
@@ -103,13 +103,15 @@
                                     </template>
                                     <!-- input -->
                                     <b-form-input type="text" 
-                                        v-bind:list="'keyword-list-' + item.id"
+                                        v-bind:list="'keyword-list-' + index"
                                         v-model:value="item.input" 
-                                        class="form-control">
+                                        class="form-control"
+                                        v-on:input="getSuggestion(item)"
+                                        v-on:focus="suggestions = []"
+                                        autocomplete="off">
                                     </b-form-input>
-                                    <datalist v-bind:id="'keyword-list-' + item.id">
-                                        <option>test</option>
-                                        <!-- <option v-for="size in sizes">{{ size }}</option> -->
+                                    <datalist v-bind:id="'keyword-list-' + index">
+                                        <option v-for="suggestion in suggestions">{{ suggestion }}</option>
                                     </datalist>
                                 </b-input-group>
                             </div>
@@ -161,10 +163,13 @@
                                     <b-form-input type="text"
                                         v-bind:list="'channel-list-' + item.id"
                                         v-model:value="item.input" 
-                                        class="form-control">
+                                        class="form-control"
+                                        v-on:input="getSuggestion(item)"
+                                        v-on:focus="suggestions = []"
+                                        autocomplete="off">
                                     </b-form-input>
                                     <datalist v-bind:id="'channel-list-' + item.id">
-                                        <!-- <option v-for="size in sizes">{{ size }}</option> -->
+                                        <option v-for="suggestion in suggestions">{{ suggestion }}</option>
                                     </datalist>
                                 </b-input-group>
                             </div>

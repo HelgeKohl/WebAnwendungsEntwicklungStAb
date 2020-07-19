@@ -4,47 +4,64 @@ var path = require('path');
 var axios = require('axios');
 var solr = require('./static/js/solr-helper.js');
 
-
+// builds the search query for solr
 function buildQuery(data){
     var url = solr.client.url() + "/select?hl=on&hl.fl=*&hl.fragsize=-1&q="
     var query = "";
 
     data['keywords'].forEach(element => {
         if(element.input != ""){
+            // only append concat type if its not the first attribute
             if(query != ""){
-                query += " " + element.concatType.toUpperCase() + " ";
+                query += " " + element.concatType + " ";
             }
             if(element.negate){
                 query += "-";
             }
-            query += element.type + "_" + data['language'] + ":\"" + element.input + "\"";
+            // concat searchfield to query
+            query += element.type + "_" + data['language'] + ":\"" + replaceAll(element.input, "\"", "\\\"") + "\"";
         }
     });
 
     data['channel'].forEach(element =>{ 
         if(element.input != ""){
+            // only append concat type if its not the first attribute
             if(query != ""){
-                query += " " + element.concatType.toUpperCase() + " ";
+                query += " " + element.concatType + " ";
             }
             if(element.negate){
                 query += "-";
             }
-            query += "channel%3A" + "\"" + element.input + "\"";
+            // concat searchfield to query
+            query += "channel:" + "\"" + replaceAll(element.input, "\"", "\\\"") + "\"";
         }
     });
 
     // empty query needs to search only right language
     if(query === "") query = "title_" + data['language'] + ":* AND subtitle_" + data['language'] + ":*";
+
     var startrange = " AND start:[" + data['start'].from + " TO " + data['start'].till + "]";
     var stoprange = " AND stop:[" + data['stop'].from + " TO " + data['stop'].till + "]";
     
+    query = url + encodeURI(query + startrange + stoprange);
+    
+    query += "&rows="+ data['rows'] + "&start=" + (data['currentPage'] * data['rows'] - data['rows'])
 
-    query = url + escape(query+startrange+stoprange);
-    query += "&rows=10" + "&start=" + (data['rows'] - 10)
-    console.log(query);
+    console.log(query)
     return query;
 }
 
+// builds the suggestion query for solr
+function buildSuggestionQuery(data){
+    var url = solr.client.url() + "/suggest?suggest=true&suggest.build=false";
+    suggestDict = "&suggest.dictionary=" + data['type'] + "_suggester_" + data['language'];
+    suggestInput = "&suggest.q=" + encodeURI(data['input']) + "&wt=json";
+
+    url += suggestDict + suggestInput;
+    return url;
+}
+
+// replaces all occurrences of a specific character in a string
 function replaceAll(str, find, replace) {
     if(str != undefined){
         return str.replace(new RegExp(find, 'g'), replace);
@@ -71,6 +88,7 @@ http.createServer(function (req, res) {
         req.connection.destroy();
     });
 
+    // search epg data
     if(filePath == './search'){
         req.on('end', function () {
             let rawdata = fs.readFileSync('logofiles.json');
@@ -82,21 +100,60 @@ http.createServer(function (req, res) {
             .then((response) => {
                 response.data.response.docs.forEach(element => {
                     elementKeys = Object.keys(response.data.highlighting[element['id']]);
-                    for (var key of elementKeys){
-                        element[key] = response.data.highlighting[element['id']][key][0]
-                    }
-                    element['desc_' + post['language']] = replaceAll(element['desc_' + post['language']], "\n", "</br>")
-                    element['subtitle_' + post['language']] = replaceAll(element['subtitle_' + post['language']], "\n", "</br>")
                     element['logofile'] = logofilesJSON[element.channel][0];
                     element['channeltype'] = logofilesJSON[element.channel][1];
+
+                    for (var key of elementKeys){
+                        console.log(response.data.highlighting[element['id']][key][0]);
+                        console.log(element[key]);
+                        element[key] = response.data.highlighting[element['id']][key][0];
+                    }
+                    
+                    element['desc_' + post['language']] = replaceAll(element['desc_' + post['language']], "\n", "</br>");
+                    element['subtitle_' + post['language']] = replaceAll(element['subtitle_' + post['language']], "\n", "</br>");
                 });
 
                 res.setHeader('Content-Type', 'application/json');
                 res.end(JSON.stringify(response.data));
-            })
+            }).catch((err) => {
+                console.log(err);
+                fs.readFile('./404.html', function(error, content) {
+                    res.writeHead(404, { 'Content-Type': 'text/html' });
+                    res.end(content, 'utf-8');
+                });
+            });
         });
-        
     }
+    // search autocomplete suggestions
+    else if(filePath == './suggest'){
+        req.on('end', function () {
+            var post = JSON.parse(body);
+            strQuery = buildSuggestionQuery(post);
+
+            axios.get(strQuery)
+            .then((response) => {
+                var suggestions = [];
+                var suggester = post['type'] + "_suggester_" + post['language'];
+                var input = [post['input']];
+
+                var suggestionResponse = response.data.suggest[suggester][input].suggestions;
+                suggestionResponse.forEach(element => {
+                    suggestions.push(element['term']);
+                });
+
+                res.setHeader('Content-Type', 'application/json');
+                res.end(JSON.stringify(suggestions));
+            })
+            .catch((err) => {
+                console.log("Error:", err)
+                fs.readFile('./404.html', function(error, content) {
+                    res.writeHead(404, { 'Content-Type': 'text/html' });
+                    res.end(content, 'utf-8');
+                });
+            });
+        });
+    }
+    // handles file delivery
     else if(/^\.\/static\//.test(filePath)){
         var extname = String(path.extname(filePath)).toLowerCase();
 

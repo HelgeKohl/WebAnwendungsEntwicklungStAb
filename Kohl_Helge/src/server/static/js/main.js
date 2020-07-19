@@ -2,7 +2,6 @@ var datetime = Vue.component('vue-datetime', window.VueDatetime.Datetime);
 datetime.options.props.minuteStep.default = 5
 datetime.options.props.inputClass.default = "form-control mr-sm-2"
 
-
 var filter = new Vue({
     el: '#app',
     data: {
@@ -12,21 +11,19 @@ var filter = new Vue({
         keywords:{
             data: [
                 {   
-                    id: 0,
                     negate: false,
                     concatType: '',
                     type: 'title',
-                    input: 'Bayern'
+                    input: '',
                 },
             ],
         },
         channels:{
             data: [
                 {
-                    id: 0,
                     negate: false,
                     concatType: 'AND',
-                    input: ''
+                    input: '',
                 },
             ],
         },
@@ -43,7 +40,8 @@ var filter = new Vue({
             perPage: 10,
             numFound: 0,
             data: []
-        }
+        },
+        suggestions:[]
     },
     methods:{
         addKeywordInput() {
@@ -118,6 +116,24 @@ var filter = new Vue({
                 filter.stop.till = date + "T" + time.join(":")
             }
         },
+        getSuggestion(item){
+            if(item.type != "desc"){
+                if(item.type === undefined){
+                    type = "channel";
+                }
+                else type = item.type;
+
+                axios.post("suggest", JSON.stringify({
+                    input: item.input,
+                    type: type,
+                    language: this.language,
+                })).then(response => {
+                    filter.suggestions = response.data
+                }).catch(err => {
+                    console.log(err);
+                });
+            }
+        }
     },
     watch: {
         'queryResult.currentPage': function(){
@@ -150,15 +166,17 @@ function requestData(){
         channel: filter.channels.data,
         start: start, 
         stop: stop,
-        rows: (filter.queryResult.perPage * filter.queryResult.currentPage),
+        rows: filter.queryResult.perPage,
+        currentPage: filter.queryResult.currentPage,
     }))
     .then(response => {
         filter.queryResult.numFound = response.data.response.numFound;
         filter.queryResult.data = response.data.response.docs;
 
-        console.log(filter.queryResult.data)
         if(filter.queryResult.currentPage > filter.queryResult.numFound/10 + 1){
             filter.queryResult.currentPage = 1;
         }
-    })
+    }).catch(err => {
+        console.log(err);
+    });
 }
