@@ -119,13 +119,13 @@ function highlight(old, to){
 
 // adds imdb link
 function addLinks(description){
-    exp = new RegExp(/(?<=^(?:(?:.*Regie|Drehbuch|Autor|Komponist|Kamera|Schnitt|Buch\/Autor|Musik|): ))(?:(?:[A-Za-zÀ-ÖØ-öø-ÿ. ]+))/gm);
+    exp = new RegExp(/(?<=^(?:(?:.*Regie|Drehbuch|Autor|Komponist|Kamera|Schnitt|Buch\/Autor|Musik|): )|(?:^(?:.*Regie|Drehbuch|Autor|Komponist|Kamera|Schnitt|Buch\/Autor|Musik|): ([A-Za-zÀ-ÖØ-öø-ÿ. ]*, )*))(?:(?:[A-Za-zÀ-ÖØ-öø-ÿ. ]+))/gm);
 
     description = description.replace(exp, (match) => {                
         return "<a href=\"https://www.imdb.com/find?q=" + encodeURI(match) + "\" target=\"_blank\">" + match + "</a>";
     })
 
-    artistExp = new RegExp(/(?:(?:^[A-Za-zÀ-ÖØ-öø-ÿ ]*)(?= \()|(?<=[A-Za-zÀ-ÖØ-öø-ÿ ]+ - )([A-Za-zÀ-ÖØ-öø-ÿ ]*))/gm);
+    artistExp = new RegExp(/(?:(?:^[A-Za-zÀ-ÖØ-öø-ÿ ]*)(?= \()|(?<=^[A-Za-zÀ-ÖØ-öø-ÿ ]+ - )([A-Za-zÀ-ÖØ-öø-ÿ ]*))/gm);
     description = description.replace(artistExp, (match) => {
         return "<a href=\"https://www.imdb.com/find?q=" + match + "\" target=\"_blank\">" + match + "</a>";
     })
