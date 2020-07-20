@@ -6,7 +6,7 @@ var solr = require('./static/js/solr-helper.js');
 
 // builds the search query for solr
 function buildQuery(data){
-    var url = solr.client.url() + "/select?hl=on&hl.fl=*&hl.fragsize=-1&q="
+    var url = solr.client.url() + "/select?hl=on&hl.fl=*&q="
     var query = "";
 
     data['keywords'].forEach(element => {
@@ -105,6 +105,34 @@ function isFavourite(obj){
     else return false;
 }
 
+// adds <em>-tag
+function highlight(old, to){
+    exp = new RegExp(/<em>(.*?)<\/em>/ugm);
+    let exprResult;
+    
+    while((exprResult = exp.exec(to)) !== null){
+        old = replaceAll(old, "(?<![0-9]|<em>)" + exprResult[1]+ "(?![0-9]|<\/em>|[^<>]*>)", exprResult[0]);
+    }
+
+    return old;
+}
+
+// adds imdb link
+function addLinks(description){
+    exp = new RegExp(/(?<=^(?:(?:.*Regie|Drehbuch|Autor|Komponist|Kamera|Schnitt|Buch\/Autor|Musik|): ))(?:(?:[A-Za-zÀ-ÖØ-öø-ÿ. ]+))/gm);
+
+    description = description.replace(exp, (match) => {                
+        return "<a href=\"https://www.imdb.com/find?q=" + encodeURI(match) + "\" target=\"_blank\">" + match + "</a>";
+    })
+
+    artistExp = new RegExp(/(?:(?:^[A-Za-zÀ-ÖØ-öø-ÿ ]*)(?= \()|(?<=[A-Za-zÀ-ÖØ-öø-ÿ ]+ - )([A-Za-zÀ-ÖØ-öø-ÿ ]*))/gm);
+    description = description.replace(artistExp, (match) => {
+        return "<a href=\"https://www.imdb.com/find?q=" + match + "\" target=\"_blank\">" + match + "</a>";
+    })
+
+    return description;
+}
+
 http.createServer(function (req, res) {
     var filePath = '.' + req.url;
     if (filePath == './') {
@@ -139,10 +167,12 @@ http.createServer(function (req, res) {
                     element['logofile'] = logofilesJSON[element.channel][0];
                     element['channeltype'] = logofilesJSON[element.channel][1];
 
-                    for (var key of elementKeys){
-                        element[key] = response.data.highlighting[element['id']][key][0];
-                    }
+                    element['desc_' + post['language']] = addLinks(element['desc_' + post['language']])
 
+                    for (var key of elementKeys){
+                        element[key] = highlight(element[key], response.data.highlighting[element['id']][key][0])
+                    }
+                    
                     element['isFavourite'] = isFavourite(element);
 
                     element['desc_' + post['language']] = replaceAll(element['desc_' + post['language']], "\n", "</br>");

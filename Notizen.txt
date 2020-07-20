@@ -25,3 +25,4 @@ Datenfelder:
 	
 Stichwortsuche in title, subtitle, desc,					Textfeld(er?)
 Filter nach start, stop(intervall), Channel u.ä.			Datetime, Fazetten (Datumsbereich, Sendergruppe, Tageszeit)
+

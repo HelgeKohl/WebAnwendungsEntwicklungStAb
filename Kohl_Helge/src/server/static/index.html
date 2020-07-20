@@ -21,22 +21,22 @@
                 <b-nav-item 
                     v-bind:class="{ active: activeSide==='search'}" 
                     v-on:click="activeSide = 'search'">
-                        <span class="fas fa-search"></span>
+                    <span class="fas fa-search"></span>
                 </b-nav-item>
                 <b-nav-item 
                     v-bind:class="{ active: activeSide==='result' }" 
                     v-on:click="activeSide = 'result'; requestData()">
-                        <span class="fas fa-list"></span>
+                    <span class="fas fa-list"></span>
                 </b-nav-item>
                 <b-nav-item 
                     v-bind:class="{ active: activeSide==='favourites' }" 
                     v-on:click="activeSide = 'favourites'; requestFavourites()">
-                        <span class="fas fa-heart"></span>
+                    <span class="fas fa-heart"></span>
                 </b-nav-item>
                 <b-nav-item 
                     v-bind:class="{ active: activeSide==='settings' }" 
                     v-on:click="activeSide = 'settings'">
-                        <span class="fas fa-user-cog"></span>
+                    <span class="fas fa-user-cog"></span>
                 </b-nav-item>
                 <b-nav-item-dropdown text="lang" right>
                     <template v-slot:button-content>
@@ -50,7 +50,7 @@
                     <b-dropdown-item 
                         v-on:click="language = 'fre'"
                         v-bind:active="language==='fre'">
-                            Französisch
+                        Französisch
                     </b-dropdown-item>
                 </b-nav-item-dropdown>
             </b-navbar-nav>
@@ -62,12 +62,15 @@
             <b-container class="pt-3">
                 <b-card no-body>
                     <b-card-header header-tag="header" class="p-0 nobackground">
-                        <b-button block v-b-toggle.collapse-1>Titel, Untertitel und Beschreibung</b-button>
+                        <b-button block 
+                            v-b-toggle.collapse-1>
+                            Titel, Untertitel und Beschreibung
+                        </b-button>
                     </b-card-header>
                     <b-collapse id="collapse-1" visible class="mt-2">
                         <b-card-body>
                             <b-button class="mb-3" 
-                                    v-on:click="addKeywordInput">
+                                v-on:click="addKeywordInput">
                                 Stichwortsuche hinzufügen
                             </b-button>
                             <!-- keyword search -->
@@ -76,22 +79,23 @@
                                 <b-input-group class="mt-3">
                                     <!-- concat type -->
                                     <select class="form-control"
-                                            v-if="keywords.data.indexOf(item) != 0"
-                                            v-model:value="item.concatType">
+                                        v-if="keywords.data.indexOf(item) != 0"
+                                        v-model:value="item.concatType">
                                         <option v-bind:value="'AND'">und</option>
                                         <option v-bind:value="'OR'">oder</option>
                                     </select>
                                     <!-- negation -->
                                     <select class="form-control"
-                                            v-model:value="item.negate">
+                                        v-model:value="item.negate">
                                         <option v-bind:value="false">enthält</option>
                                         <option v-bind:value="true">enthält nicht</option>
                                     </select>
                                     <!-- remove item -->
                                     <div class="input-group-append">
-                                        <b-button class="form-controll"
-                                                v-bind:disabled="keywords.data.indexOf(item) == 0"
-                                                v-on:click="removeKeywordInput(item)">
+                                        <b-button variant="danger"
+                                            class="form-controll"
+                                            v-bind:disabled="keywords.data.indexOf(item) == 0"
+                                            v-on:click="removeKeywordInput(item)">
                                             <span class="fas fa-trash-alt"></span>
                                         </b-button>
                                     </div>
@@ -100,7 +104,7 @@
                                 <b-input-group class="mb-2">
                                     <template v-slot:prepend>
                                         <select class="form-control" 
-                                                v-model:value="item.type">
+                                            v-model:value="item.type">
                                             <option v-bind:value="'title'">Titel</option>
                                             <option v-bind:value="'subtitle'">Untertitel</option>
                                             <option v-bind:value="'desc'">Beschreibung</option>
@@ -134,7 +138,7 @@
                     <b-collapse id="collapse-2" class="mt-2">
                         <b-card-body>
                             <b-button class="mb-3" 
-                                    v-on:click="addChannelInput">
+                                v-on:click="addChannelInput">
                                 Sender hinzufügen
                             </b-button>
                             <div v-for="item in channels.data">
@@ -142,22 +146,23 @@
                                 <b-input-group class="mt-3">
                                     <!-- concat type -->
                                     <select class="form-control"
-                                            v-if="channels.data.indexOf(item) != 0"
-                                            v-model:value="item.concatType">
+                                        v-if="channels.data.indexOf(item) != 0"
+                                        v-model:value="item.concatType">
                                         <option v-bind:value="'AND'">und</option>
                                         <option v-bind:value="'OR'">oder</option>
                                     </select>
                                     <!-- negation -->
                                     <select class="form-control"
-                                            v-model:value="item.negate">
+                                        v-model:value="item.negate">
                                         <option v-bind:value="false">enthält</option>
                                         <option v-bind:value="true">enthält nicht</option>
                                     </select>
                                     <!-- remove item -->
                                     <div class="input-group-append">
-                                        <b-button class="form-controll"
-                                                v-bind:disabled="channels.data.indexOf(item) == 0"
-                                                v-on:click="removeChannelInput(item)">
+                                        <b-button variant="danger" 
+                                            class="form-controll"
+                                            v-bind:disabled="channels.data.indexOf(item) == 0"
+                                            v-on:click="removeChannelInput(item)">
                                             <span class="fas fa-trash-alt"></span>
                                         </b-button>
                                     </div>
@@ -195,19 +200,24 @@
                         <b-card-body>
                             <label>Start:</label>
                             <div class="daterangebutton mb-2">
-                                <b-button variant="secondary" v-on:click="changeTime('start', start.from, 'Vormittag')">
+                                <b-button variant="secondary" 
+                                    v-on:click="changeTime('start', start.from, 'Vormittag')">
                                     Vormittag
                                 </b-button>
-                                <b-button variant="secondary" v-on:click="changeTime('start', start.from, 'Nachmittag')">
+                                <b-button variant="secondary" 
+                                    v-on:click="changeTime('start', start.from, 'Nachmittag')">
                                     Nachmittag
                                 </b-button>
-                                <b-button variant="secondary" v-on:click="changeTime('start', start.from, 'Abend')">
+                                <b-button variant="secondary" 
+                                    v-on:click="changeTime('start', start.from, 'Abend')">
                                     Abend
                                 </b-button>
-                                <b-button variant="secondary" v-on:click="changeTime('start', start.from, 'Nacht')">
+                                <b-button variant="secondary" 
+                                    v-on:click="changeTime('start', start.from, 'Nacht')">
                                     Nacht
                                 </b-button>
-                                <b-button variant="secondary" v-on:click="start.from = '', start.till = ''">
+                                <b-button variant="danger" 
+                                    v-on:click="start.from = '', start.till = ''">
                                     Zurücksetzen
                                 </b-button>
                             </div>
@@ -239,19 +249,24 @@
                             </b-row>
                             <label>Ende:</label>
                             <div class="daterangebutton mb-2">
-                                <b-button variant="secondary" v-on:click="changeTime('stop', stop.from, 'Vormittag')">
+                                <b-button variant="secondary" 
+                                    v-on:click="changeTime('stop', stop.from, 'Vormittag')">
                                     Vormittag
                                 </b-button>
-                                <b-button variant="secondary" v-on:click="changeTime('stop', stop.from, 'Nachmittag')">
+                                <b-button variant="secondary" 
+                                    v-on:click="changeTime('stop', stop.from, 'Nachmittag')">
                                     Nachmittag
                                 </b-button>
-                                <b-button variant="secondary" v-on:click="changeTime('stop', stop.from, 'Abend')">
+                                <b-button variant="secondary" 
+                                    v-on:click="changeTime('stop', stop.from, 'Abend')">
                                     Abend
                                 </b-button>
-                                <b-button variant="secondary" v-on:click="changeTime('stop', stop.from, 'Nacht')">
+                                <b-button variant="secondary" 
+                                    v-on:click="changeTime('stop', stop.from, 'Nacht')">
                                     Nacht
                                 </b-button>
-                                <b-button variant="secondary" v-on:click="stop.from = '', stop.till = ''">
+                                <b-button variant="danger" 
+                                    v-on:click="stop.from = '', stop.till = ''">
                                     Zurücksetzen
                                 </b-button>
                             </div>
@@ -291,7 +306,7 @@
         <!-- result menu -->
         <div v-if="activeSide==='result' || activeSide==='favourites'"> 
             <template>
-                <div class="overflow-auto">
+                <div class="overflow-auto mb-2">
                     <!-- pagination -->
                     <div class="my-3">
                         <b-pagination
@@ -316,14 +331,14 @@
                                 header-tag="header" 
                                 class="p-0 nobackground">
                                 <b-button-group class="resultheader">
-                                    <b-button block class="header" v-b-toggle="'collapse-' + item.id">
+                                    <b-button block 
+                                        class="header" 
+                                        v-b-toggle="'collapse-' + item.id">
                                         <div class="broadcast">
                                             <div class="info">
                                                 <div class="logo">
                                                     <img
-                                                        v-bind:src="
-                                                            'static/img/senderlogos/' 
-                                                            + item.logofile" 
+                                                        v-bind:src="'static/img/senderlogos/' + item.logofile" 
                                                         v-bind:alt="item.channel">
                                                     </img>
                                                 </div>

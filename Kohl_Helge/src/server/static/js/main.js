@@ -14,7 +14,7 @@ var filter = new Vue({
                     negate: false,
                     concatType: '',
                     type: 'title',
-                    input: '',
+                    input: 'Harry Potter',
                 },
             ],
         },
@@ -41,7 +41,7 @@ var filter = new Vue({
             numFound: 0,
             data: []
         },
-        suggestions:[]
+        suggestions:[],
     },
     methods:{
         addKeywordInput() {
