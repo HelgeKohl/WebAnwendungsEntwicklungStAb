@@ -4,6 +4,19 @@ body {
     padding: 0;
 }
 
+ul {
+    margin: 0;
+    padding: 0;
+}
+
+li {
+    list-style: none;
+}
+
+.red {
+    color: red;
+}
+
 #app {
     background-color: #f0f2f5;
     min-height: 100vh;
@@ -69,22 +82,142 @@ em{
     color: #28a745;
 }
 
-/* CardHeader */
-table{
-    width:100%;
+.resultheader{
+    width: 100%;
 }
 
-.pic-col img{
+.record a{
+    height: 100%;
+}
+
+/* CardHeader */
+.broadcast{
+    width:100%;
+    display: flex;
+    align-items: center;
+}
+
+.broadcast div{
     float: left;
 }
 
-td.first{
-    width: 1%;
+div.info{
+    width: 20%;
+    display: flex;
+    align-items: center;
 }
 
-td.last{
-    width: 10%;
-    padding: 0.375rem;
+div.logo{
+    float: left;
+    margin-right: 3px;
+}
+
+div.date{
+    float: left;
+    width: 41%;
+    text-align: left;
+}
+
+div.title{
+    width: 80%;
+    padding-left: 5px;
+}
+
+.until{
+    color: rgb(212, 212, 212);
+}
+
+.resultheader .header{
+    padding-right:0;
+}
+
+
+@media only screen and (min-width: 1200px){
+    div.info{
+        width: 18%;
+    }
+
+    div.title{
+        width: 84%;
+    }
+}
+
+@media only screen and (max-width: 1199px){
+    div.info{
+        width: 21%;
+    }
+
+    div.title{
+        width: 79%;
+    }
+
+    div.date{
+        width: 42%;
+    }
+}
+
+@media only screen and (max-width: 991px){
+    div.info{
+        width: 30%;
+    }
+
+    div.title{
+        width: 72%;
+    }
+
+    div.date{
+        width: 41%;
+    }
+}
+
+@media only screen and (max-width: 767px){
+    div.info{
+        width: 22%;
+        display: block;
+    }
+
+    div.title{
+        width: 100%;
+    }
+
+    div.date{
+        width: 100%;
+    }
+}
+
+@media only screen and (max-width: 575px){
+    div.info{
+        width: 29%;
+        display: block;
+    }
+
+    div.title{
+        max-width: 100%;
+    }
+}
+
+@media only screen and (max-width: 420px){
+    div.info{
+        width: 30%;
+    }
+
+    div.title{
+        max-width: 100%;
+    }
+}
+
+@media only screen and (max-width: 371px){
+    div.date{
+        width: 100%;
+    }
+
+    div.info{
+        width: 37%;
+    }
+
+    div.title{
+        max-width: 100%;
+    }
 }
 
 /* Datetimepicker */
@@ -97,7 +230,7 @@ td.last{
 }
 
 /* Responsive Container */
-@media only screen and (max-width: 575px){
+@media only screen and (max-width: 768px){
     .container{
         padding-right: 0px;
         padding-left: 0px;

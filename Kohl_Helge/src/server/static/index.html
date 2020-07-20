@@ -29,6 +29,11 @@
                         <span class="fas fa-list"></span>
                 </b-nav-item>
                 <b-nav-item 
+                    v-bind:class="{ active: activeSide==='favourites' }" 
+                    v-on:click="activeSide = 'favourites'; requestFavourites()">
+                        <span class="fas fa-heart"></span>
+                </b-nav-item>
+                <b-nav-item 
                     v-bind:class="{ active: activeSide==='settings' }" 
                     v-on:click="activeSide = 'settings'">
                         <span class="fas fa-user-cog"></span>
@@ -202,6 +207,9 @@
                                 <b-button variant="secondary" v-on:click="changeTime('start', start.from, 'Nacht')">
                                     Nacht
                                 </b-button>
+                                <b-button variant="secondary" v-on:click="start.from = '', start.till = ''">
+                                    Zurücksetzen
+                                </b-button>
                             </div>
                             <b-row class="daterange">
                                 <b-col class="daterange">
@@ -243,6 +251,9 @@
                                 <b-button variant="secondary" v-on:click="changeTime('stop', stop.from, 'Nacht')">
                                     Nacht
                                 </b-button>
+                                <b-button variant="secondary" v-on:click="stop.from = '', stop.till = ''">
+                                    Zurücksetzen
+                                </b-button>
                             </div>
                             <b-row class="daterange">
                                 <b-col class="daterange">
@@ -278,11 +289,11 @@
         </div>
         <!-- searchmenu end -->
         <!-- result menu -->
-        <div v-if="activeSide==='result'"> 
+        <div v-if="activeSide==='result' || activeSide==='favourites'"> 
             <template>
                 <div class="overflow-auto">
                     <!-- pagination -->
-                    <div class="mt-3">
+                    <div class="my-3">
                         <b-pagination
                             v-model="queryResult.currentPage"
                             :total-rows="queryResult.numFound"
@@ -304,33 +315,41 @@
                             <b-card-header 
                                 header-tag="header" 
                                 class="p-0 nobackground">
-                                <b-button block v-b-toggle="'collapse-' + item.id">
-                                        <table>
-                                            <td class="first">
-                                                <img
-                                                    v-bind:src="
-                                                        'static/img/senderlogos/' 
-                                                        + item.logofile" 
-                                                    v-bind:alt="item.channel">
-                                                </img>
-                                            </td>
-                                            <td>
+                                <b-button-group class="resultheader">
+                                    <b-button block class="header" v-b-toggle="'collapse-' + item.id">
+                                        <div class="broadcast">
+                                            <div class="info">
+                                                <div class="logo">
+                                                    <img
+                                                        v-bind:src="
+                                                            'static/img/senderlogos/' 
+                                                            + item.logofile" 
+                                                        v-bind:alt="item.channel">
+                                                    </img>
+                                                </div>
+                                                <div class="date">
+                                                    <ul>
+                                                        <li><span class="date">{{ parseStrToDate(item.start) }}</span></li>
+                                                        <li><strong>{{ parseStrToTime(item.start) }}</strong></li>
+                                                        <li><span class="until"> bis {{ parseStrToTime(item.stop) }}</span></li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                            <div class="title">
                                                 <h5 style="text-align: left;">
                                                     <div v-if="language === 'ger'" v-html="item.title_ger"></div>
                                                     <div v-if="language === 'fre'" v-html="item.title_fre"></div>
                                                 </h5>
-                                            </td>
-                                            <td class="last">
-                                                <span>
-                                                    <span v-if="parseStrToDate(item.start) != parseStrToDate(item.stop)">
-                                                    {{ parseStrToDate(item.start) }} - {{ parseStrToDate(item.stop) }}
-                                                    </span>
-                                                    <span v-else>{{ parseStrToDate(item.start) }}</span>
-                                                    <span>{{ parseStrToTime(item.start) }}-{{ parseStrToTime(item.stop) }}</span>
-                                                </span>
-                                            </td>
-                                        </table>  
-                                </b-button>
+                                            </div>
+                                        </div>  
+                                    </b-button>
+                                    <b-button v-on:click="addFavourite(item)" v-if="!item.isFavourite" class="record">
+                                        <span class="fas fa-heart"></span>
+                                    </b-button>
+                                    <b-button v-on:click="removeFavourite(item)" v-else class="record">
+                                        <span class="fas fa-heart red"></span>
+                                    </b-button>
+                                </b-button-group>
                             </b-card-header>
 
                             <b-collapse v-bind:id="'collapse-' + item.id">

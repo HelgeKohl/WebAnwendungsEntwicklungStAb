@@ -59,6 +59,9 @@ var filter = new Vue({
         requestData () {
             requestData();
         },
+        requestFavourites(){
+            requestFavourites();
+        },
         parseStrToTime(str) {
             time = str.split("T");
             time = time[1].replace("Z", "");
@@ -133,11 +136,42 @@ var filter = new Vue({
                     console.log(err);
                 });
             }
+        },
+        addFavourite(item){
+            axios.post("addFavourite", JSON.stringify(item))
+            .then(response => {
+                if(filter.activeSide === 'result'){
+                    requestData();
+                }
+                else if(filter.activeSide === 'favourites'){
+                    requestFavourites();
+                }
+            }).catch(err => {
+                console.log(err);
+            });
+        },
+        removeFavourite(item){
+            axios.post("removeFavourite", JSON.stringify(item))
+            .then(response => {
+                if(filter.activeSide === 'result'){
+                    requestData();
+                }
+                else if(filter.activeSide === 'favourites'){
+                    requestFavourites();
+                }
+            }).catch(err => {
+                console.log(err);
+            });
         }
     },
     watch: {
         'queryResult.currentPage': function(){
-            requestData();
+            if(filter.activeSide === 'result'){
+                requestData();
+            }
+            else if(filter.activeSide === 'favourites'){
+                requestFavourites();
+            }
         },
         'language': function(){
             requestData();
@@ -170,8 +204,27 @@ function requestData(){
         currentPage: filter.queryResult.currentPage,
     }))
     .then(response => {
+        console.log(response.data)
         filter.queryResult.numFound = response.data.response.numFound;
         filter.queryResult.data = response.data.response.docs;
+
+        if(filter.queryResult.currentPage > filter.queryResult.numFound/10 + 1){
+            filter.queryResult.currentPage = 1;
+        }
+    }).catch(err => {
+        console.log(err);
+    });
+}
+
+function requestFavourites(){
+    axios.post("favourites", JSON.stringify({
+        rows: filter.queryResult.perPage,
+        currentPage: filter.queryResult.currentPage,
+    }))
+    .then(response => {
+        console.log(response.data);
+        filter.queryResult.numFound = response.data.numFound;
+        filter.queryResult.data = response.data.response;
 
         if(filter.queryResult.currentPage > filter.queryResult.numFound/10 + 1){
             filter.queryResult.currentPage = 1;

@@ -69,6 +69,42 @@ function replaceAll(str, find, replace) {
     else return str;
 }
 
+// checks if an object is already in array
+function containsObject(obj, list) {
+    var i;
+    for (i = 0; i < list.length; i++) {
+        if (list[i].id == obj.id) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+function isFavourite(obj){
+    var currentData;
+    // check if aufnahme.json exists
+    if(!fs.existsSync('aufnahme.json')){
+        fs.appendFile('aufnahme.json', '[]', function (err) {
+            if (err) throw err;
+        });
+    }
+
+    // get currentData
+    var rawdata = fs.readFileSync('aufnahme.json');
+            
+    // if file is empty
+    if(rawdata.length == 0){
+        currentData = [];
+    }
+    else{
+        currentData = JSON.parse(rawdata);
+    }
+
+    if(containsObject(obj, currentData)) return true;
+    else return false;
+}
+
 http.createServer(function (req, res) {
     var filePath = '.' + req.url;
     if (filePath == './') {
@@ -104,11 +140,11 @@ http.createServer(function (req, res) {
                     element['channeltype'] = logofilesJSON[element.channel][1];
 
                     for (var key of elementKeys){
-                        console.log(response.data.highlighting[element['id']][key][0]);
-                        console.log(element[key]);
                         element[key] = response.data.highlighting[element['id']][key][0];
                     }
-                    
+
+                    element['isFavourite'] = isFavourite(element);
+
                     element['desc_' + post['language']] = replaceAll(element['desc_' + post['language']], "\n", "</br>");
                     element['subtitle_' + post['language']] = replaceAll(element['subtitle_' + post['language']], "\n", "</br>");
                 });
@@ -123,6 +159,98 @@ http.createServer(function (req, res) {
                 });
             });
         });
+    }
+    else if(filePath == './favourites'){
+        req.on('end', function() {
+            var rawdata = fs.readFileSync('aufnahme.json');
+            if(rawdata.length != 0){
+                var currentData = JSON.parse(rawdata);
+            }
+            else var currentData = []
+
+            var post = JSON.parse(body);
+            var responseObject = []
+            var index = (post['currentPage'] * post['rows'] - post['rows']);
+
+            for(; index < post['rows'] * post['currentPage'] && index < currentData.length; index++){
+                responseObject.push(currentData[index]);
+            }
+
+            responseObject.forEach(element => {
+                element['isFavourite'] = isFavourite(element);
+            });
+
+            var response = {
+                response: responseObject,
+                numFound: currentData.length,
+                perPage: post['rows']
+            }
+
+            res.setHeader('Content-Type', 'application/json');
+            res.end(JSON.stringify(response));
+        })
+    }
+    else if(filePath == './addFavourite'){
+        req.on('end', function() {
+            var post = JSON.parse(body);
+            var currentData;
+            // check if aufnahme.json exists
+            if(!fs.existsSync('aufnahme.json')){
+                fs.appendFile('aufnahme.json', '[]', function (err) {
+                    if (err) throw err;
+                });
+            }
+
+            // get currentData
+            var rawdata = fs.readFileSync('aufnahme.json');
+            
+            // if file is empty
+            if(rawdata.length == 0){
+                currentData = [];
+            }
+            else{
+                currentData = JSON.parse(rawdata);
+            }
+
+            // // dont store broadcasts twice
+            if(!containsObject(post, currentData)){      
+                currentData.push(post);
+
+                // remove highlighting
+                currentData = JSON.stringify(currentData);
+                currentData = replaceAll(currentData, "<em>", "");
+                currentData = replaceAll(currentData, "</em>", "");
+
+                fs.writeFile('aufnahme.json', currentData, function (err) {
+                    if (err) return console.log(err);
+                });
+            }
+
+            res.setHeader('Content-Type', 'application/json');
+            res.end("added");
+        })
+    }
+    else if(filePath == './removeFavourite'){
+        req.on('end', function() {
+            var post = JSON.parse(body);
+            var rawdata = fs.readFileSync('aufnahme.json');
+            var currentData = JSON.parse(rawdata);
+            var indexToDelete;
+
+            currentData.find(function(element, index){             
+                if(element.id === post.id){
+                    indexToDelete = index;
+                }
+            });
+            currentData.splice(indexToDelete, 1);
+            
+            fs.writeFile('aufnahme.json', JSON.stringify(currentData), function (err) {
+                if (err) return console.log(err);
+            });
+
+            res.setHeader('Content-Type', 'application/json');
+            res.end("removed");
+        })
     }
     // search autocomplete suggestions
     else if(filePath == './suggest'){
