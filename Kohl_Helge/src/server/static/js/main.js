@@ -8,6 +8,7 @@ var filter = new Vue({
         today: "2020-07-16T00:00:00.000+02:00",
         language: "ger",
         activeSide: "search",
+        // keyword input
         keywords:{
             data: [
                 {   
@@ -18,6 +19,7 @@ var filter = new Vue({
                 },
             ],
         },
+        // channelinput
         channels:{
             data: [
                 {
@@ -27,32 +29,40 @@ var filter = new Vue({
                 },
             ],
         },
+        // datetime range start
         start:{
             from: '',
             till: '',
         },
+        // datetime range stop
         stop:{
             from: '',
             till: '',
         },
+        // requests results
         queryResult:{
             currentPage: 1,
             perPage: 10,
             numFound: 0,
             data: []
         },
+        // suggestions for input fields
         suggestions:[],
     },
     methods:{
+        // add keywordinput element
         addKeywordInput() {
             filter.keywords.data.push({negate: false, concatType: 'AND', type: 'title', input: ''})
         },
+        // remove keywordinput element
         removeKeywordInput(item) {
             filter.keywords.data.splice(filter.keywords.data.indexOf(item),1)
         },
+        // add channelinput element
         addChannelInput() {
             filter.channels.data.push({negate: false, concatType: 'AND', input: ''})
         },
+        // remove channelinput element
         removeChannelInput(item) {
             filter.channels.data.splice(filter.channels.data.indexOf(item),1)
         },
@@ -62,6 +72,7 @@ var filter = new Vue({
         requestFavourites(){
             requestFavourites();
         },
+        // parse datetime string to time string
         parseStrToTime(str) {
             time = str.split("T");
             time = time[1].replace("Z", "");
@@ -69,6 +80,7 @@ var filter = new Vue({
 
             return time;
         },
+        // parse datetime string to date string
         parseStrToDate(str) {
             date = str.split("T");
             date = date[0].split("-");
@@ -76,6 +88,7 @@ var filter = new Vue({
             
             return transformedDate;
         },
+        // change datepicker data by preset buttons
         changeTime(which ,from, to) {
             if(from == ""){
                 from = filter.today;
@@ -84,6 +97,7 @@ var filter = new Vue({
             date = from.split("T")[0];
             time = from.split("T")[1].split(":");
             time[1] = "00";
+
             switch(to){
                 case "Vormittag":
                     time[0] = "06";
@@ -98,6 +112,7 @@ var filter = new Vue({
                     time[0] = "00";
                     break;
             }
+
             if(which === "start"){
                 filter.start.from = date + "T" + time.join(":")
 
@@ -119,6 +134,7 @@ var filter = new Vue({
                 filter.stop.till = date + "T" + time.join(":")
             }
         },
+        // request autocompletion suggestion
         getSuggestion(item){
             if(item.type != "desc"){
                 if(item.type === undefined){
@@ -137,6 +153,7 @@ var filter = new Vue({
                 });
             }
         },
+        // add item to favourite list
         addFavourite(item){
             axios.post("addFavourite", JSON.stringify(item))
             .then(response => {
@@ -150,6 +167,7 @@ var filter = new Vue({
                 console.log(err);
             });
         },
+        // remove item from favourite list
         removeFavourite(item){
             axios.post("removeFavourite", JSON.stringify(item))
             .then(response => {
@@ -165,6 +183,7 @@ var filter = new Vue({
         }
     },
     watch: {
+        // update shown data by pagination
         'queryResult.currentPage': function(){
             if(filter.activeSide === 'result'){
                 requestData();
@@ -173,12 +192,14 @@ var filter = new Vue({
                 requestFavourites();
             }
         },
+        // update shown data by language
         'language': function(){
             requestData();
         }
     }
 })
 
+// request by input
 function requestData(){
     var start = {
         from: "*",
@@ -189,6 +210,7 @@ function requestData(){
         till: "*"
     };
 
+    // prepare dateranges
     if(filter.start.from != "") start.from = filter.start.from.slice(0, -10) + "Z";
     if(filter.start.till != "") start.till = filter.start.till.slice(0, -10) + "Z";
     if(filter.stop.from != "") stop.from = filter.stop.from.slice(0, -10) + "Z";
@@ -204,10 +226,10 @@ function requestData(){
         currentPage: filter.queryResult.currentPage,
     }))
     .then(response => {
-        console.log(response.data)
         filter.queryResult.numFound = response.data.response.numFound;
         filter.queryResult.data = response.data.response.docs;
 
+        // reset current page if page is higher than pagesum
         if(filter.queryResult.currentPage > filter.queryResult.numFound/10 + 1){
             filter.queryResult.currentPage = 1;
         }
@@ -216,16 +238,17 @@ function requestData(){
     });
 }
 
+// requests favourites
 function requestFavourites(){
     axios.post("favourites", JSON.stringify({
         rows: filter.queryResult.perPage,
         currentPage: filter.queryResult.currentPage,
     }))
     .then(response => {
-        console.log(response.data);
         filter.queryResult.numFound = response.data.numFound;
         filter.queryResult.data = response.data.response;
 
+        // reset current page if page is higher than pagesum
         if(filter.queryResult.currentPage > filter.queryResult.numFound/10 + 1){
             filter.queryResult.currentPage = 1;
         }
