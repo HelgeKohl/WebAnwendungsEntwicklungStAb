@@ -6,7 +6,7 @@ var solr = require('./static/js/solr-helper.js');
 
 // builds the search query for solr
 function buildQuery(data){
-    var url = solr.client.url() + "/select?hl=on&hl.fl=*&q="
+    var url = solr.client.url() + "/select?hl=on&hl.fl=*&facet=on&q="
     var query = "";
 
     data['keywords'].forEach(element => {
@@ -37,14 +37,29 @@ function buildQuery(data){
         }
     });
 
-    // empty query needs to search only right language
-    if(query === "") query = "title_" + data['language'] + ":* AND subtitle_" + data['language'] + ":*";
+    if(query !== "") query += "AND ";
+
+    query +=  "(" + "title_" + data['language'] + ":[* TO *]"
+                                + " AND title_" + data['language'] + ":[* TO *]"
+                                + " AND title_" + data['language'] + ":[* TO *]" + ")";
+
+    var today = encodeURIComponent("start:[" + data['now'] + "/DAY TO " + data['now'] + "/DAY+1DAY]");
+    var tomorrow = encodeURIComponent("start:[" + data['now'] + "/DAY+1DAY TO " + data['now'] + "/DAY+2DAY]");
+    var nextNDays = encodeURIComponent("start:[" + data['now'] + "/DAY TO " + data['now'] + "/DAY+" + data['nextN'] + "DAY]");
+
+    facets = "&facet.query=" + today + "&facet.query=" + tomorrow + "&facet.query=" + nextNDays;
+
+    var filter = "&fq=";
+    if(data['filter'] === '') filter += "start:" +encodeURIComponent("[* TO *]");
+    else if(data['filter'] === 'today') filter += today;
+    else if(data['filter'] === 'tomorrow') filter += tomorrow;
+    else if(data['filter'] === 'nextN') filter += nextNDays;
 
     var startrange = " AND start:[" + data['start'].from + " TO " + data['start'].till + "]";
     var stoprange = " AND stop:[" + data['stop'].from + " TO " + data['stop'].till + "]";
     
     
-    query = url + encodeURI(query + startrange + stoprange).replace(new RegExp("\\+", 'gm'), "%2B");
+    query = url + encodeURIComponent(query + startrange + stoprange) + facets + filter;
     
     if(data['sortBy'] !== undefined){
         query += encodeURI("&sort=" + data['sortBy'] + " " + data['sort']);
@@ -60,7 +75,7 @@ function buildSuggestionQuery(data){
     var url = solr.client.url() + "/suggest?suggest=true&suggest.build=false";
 
     var suggestDict = "&suggest.dictionary=" + data['type'] + "_suggester_" + data['language'];
-    var suggestInput = "&suggest.q=" + encodeURI(data['input']).replace(new RegExp("\\+", 'gm'), "%2B") + "&wt=json";
+    var suggestInput = "&suggest.q=" + encodeURIComponent(data['input']) + "&wt=json";
 
     url += suggestDict + suggestInput;
     return url;
@@ -347,7 +362,6 @@ http.createServer(function (req, res) {
                     var input = [post['input']];
 
                     // prepare response
-                    console.log(response.data.suggest[suggester])
                     var suggestionResponse = response.data.suggest[suggester][input].suggestions;
                     suggestionResponse.forEach(element => {
                         suggestions.push(element['term']);

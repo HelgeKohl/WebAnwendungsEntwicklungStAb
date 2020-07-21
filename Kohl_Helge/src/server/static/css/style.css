@@ -129,13 +129,12 @@ div.title{
     padding-right:0;
 }
 
-.btn-group-vertical .btn{
-    border-radius: 0;
-    border-top-right-radius: 0.25rem;
-    border-bottom-right-radius: 0.25rem;
+.resultheader .btn-group-vertical .btn{
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
 }
 
-.btn-group-vertical a.btn{
+.resultheader .btn-group-vertical a.btn{
     display: flex;
     align-items: center;
 }
@@ -252,7 +251,7 @@ div.title{
         border-radius: 0px;
     }
 
-    .btn-group-vertical .btn{
+    .resultheader .btn-group-vertical .btn{
         border-top-right-radius: 0;
         border-bottom-right-radius: 0;
     }
@@ -261,7 +260,7 @@ div.title{
         border: 0px;
     }
 
-    .daterangebutton .btn{
+    .buttonGroupPadding .btn{
         padding: 0.175rem 0.5rem;
         margin-bottom: 3px;
     }

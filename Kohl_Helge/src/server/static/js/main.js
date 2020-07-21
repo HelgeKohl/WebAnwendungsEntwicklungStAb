@@ -44,10 +44,13 @@ var filter = new Vue({
             currentPage: 1,
             perPage: 10,
             numFound: 0,
+            nextN: 5,
+            filterquery: '',
             loading: false,
             sort: "asc",
             sortBy: undefined,
-            data: []
+            data: [],
+            facets: {}
         },
         // suggestions for input fields
         suggestions:[],
@@ -183,7 +186,13 @@ var filter = new Vue({
             }).catch(err => {
                 console.log(err);
             });
-        }
+        },
+        toggleFacet(facet){
+            if(filter.queryResult.filterquery === ""){
+                filter.queryResult.filterquery = facet;
+            }   
+            else filter.queryResult.filterquery = "";
+        },
     },
     watch: {
         // update shown data by pagination
@@ -196,6 +205,9 @@ var filter = new Vue({
             }
         },
         'queryResult.perPage': function(){
+            if(filter.queryResult.perPage > 100) filter.queryResult.perPage = 100;
+            else if(filter.queryResult.perPage < 1) filter.queryResult.perPage = 1;
+
             if(filter.activeSide === 'result'){
                 requestData();
             }
@@ -213,6 +225,9 @@ var filter = new Vue({
             }
         },
         'queryResult.sortBy': function(){
+            requestData();
+        },
+        'queryResult.filterquery': function(){
             requestData();
         }
     }
@@ -244,10 +259,13 @@ function requestData(){
         channel: filter.channels.data,
         start: start, 
         stop: stop,
+        filter: filter.queryResult.filterquery,
         rows: filter.queryResult.perPage,
         currentPage: filter.queryResult.currentPage,
         sortBy: filter.queryResult.sortBy,
-        sort: filter.queryResult.sort
+        sort: filter.queryResult.sort,
+        nextN: filter.queryResult.nextN,
+        now: filter.today.slice(0, -10) + "Z",
     }))
     .then(response => {
         filter.queryResult.numFound = response.data.response.numFound;
@@ -258,7 +276,15 @@ function requestData(){
             filter.queryResult.currentPage = 1;
         }
 
+        if(filter.queryResult.filterquery === ""){
+            filter.queryResult.facets['today'] = response.data.facet_counts.facet_queries[Object.keys(response.data.facet_counts.facet_queries)[0]];
+            filter.queryResult.facets['tomorrow'] = response.data.facet_counts.facet_queries[Object.keys(response.data.facet_counts.facet_queries)[1]];
+            filter.queryResult.facets['nextN'] = response.data.facet_counts.facet_queries[Object.keys(response.data.facet_counts.facet_queries)[2]];
+        }
+
         filter.queryResult.loading = false;
+
+        console.log(response.data)
     }).catch(err => {
         console.log(err);
     });
