@@ -43,9 +43,13 @@ function buildQuery(data){
     var startrange = " AND start:[" + data['start'].from + " TO " + data['start'].till + "]";
     var stoprange = " AND stop:[" + data['stop'].from + " TO " + data['stop'].till + "]";
     
-    query = url + encodeURI(query + startrange + stoprange);
     
-    query += "&rows="+ data['rows'] + "&start=" + (data['currentPage'] * data['rows'] - data['rows'])
+    query = url + encodeURI(query + startrange + stoprange).replace(new RegExp("\\+", 'gm'), "%2B");
+    
+    if(data['sortBy'] !== undefined){
+        query += encodeURI("&sort=" + data['sortBy'] + " " + data['sort']);
+    }
+    query += "&rows="+ data['rows'] + "&start=" + (data['currentPage'] * data['rows'] - data['rows']);
 
     console.log(query)
     return query;
@@ -54,8 +58,9 @@ function buildQuery(data){
 // builds the suggestion query for solr
 function buildSuggestionQuery(data){
     var url = solr.client.url() + "/suggest?suggest=true&suggest.build=false";
+
     var suggestDict = "&suggest.dictionary=" + data['type'] + "_suggester_" + data['language'];
-    var suggestInput = "&suggest.q=" + encodeURI(data['input']) + "&wt=json";
+    var suggestInput = "&suggest.q=" + encodeURI(data['input']).replace(new RegExp("\\+", 'gm'), "%2B") + "&wt=json";
 
     url += suggestDict + suggestInput;
     return url;
@@ -64,7 +69,7 @@ function buildSuggestionQuery(data){
 // replaces all occurrences of a specific character in a string
 function replaceAll(str, find, replace) {
     if(str != undefined){
-        return str.replace(new RegExp(find, 'g'), replace);
+        return str.replace(new RegExp(find, 'gm'), replace);
     }
     else return str;
 }
@@ -123,9 +128,13 @@ function highlight(old, to){
 }
 
 // adds imdb link
-function addLinks(description){
+function addStaffLinks(description){
+    if(description === undefined){
+        return;
+    }
     // matches staff excluding artists
     staffExp = new RegExp(/(?<=^(?:(?:.*Regie|Drehbuch|Autor|Komponist|Kamera|Schnitt|Buch\/Autor|Musik|): )|(?:^(?:.*Regie|Drehbuch|Autor|Komponist|Kamera|Schnitt|Buch\/Autor|Musik|): ([A-Za-zÀ-ÖØ-öø-ÿ. ]*, )*))(?:(?:[A-Za-zÀ-ÖØ-öø-ÿ. ]+))/gm);
+    
     description = description.replace(staffExp, (match) => {                
         return "<a href=\"https://www.imdb.com/find?q=" + encodeURI(match) + "\" target=\"_blank\">" + match + "</a>";
     })
@@ -137,6 +146,15 @@ function addLinks(description){
     })
 
     return description;
+}
+
+function addMovieLink(query){
+    if(query === undefined){
+        return false;
+    }
+    let link = "https://mediathekviewweb.de/#query=" + replaceAll(query, " ", "%20");
+
+    return link;
 }
 
 http.createServer(function (req, res) {
@@ -158,7 +176,6 @@ http.createServer(function (req, res) {
             req.connection.destroy();
         });
         
-        
         // request epg data
         if(filePath === './search'){
             req.on('end', function () {
@@ -173,15 +190,20 @@ http.createServer(function (req, res) {
                 .then((response) => {
                     response.data.response.docs.forEach(element => {
                         let elementKeys = Object.keys(response.data.highlighting[element['id']]);
-                        let description = 'desc_' + post['language'];
+                        let title = 'title_' + post['language'];
                         let subtitle = 'subtitle_' + post['language'];
+                        let description = 'desc_' + post['language'];
 
                         // add logofilepath and channeltype
                         element['logofile'] = logofilesJSON[element.channel][0];
                         element['channeltype'] = logofilesJSON[element.channel][1];
                         
                         // add links to description
-                        element[description] = addLinks(element[description])
+                        element[description] = addStaffLinks(element[description])
+
+                        // add link to title and subtitle
+                        element['titleLink'] = addMovieLink(element[title])
+                        element['subtitleLink'] = addMovieLink(element[subtitle])
 
                         // add highlighting
                         for (var key of elementKeys){
@@ -315,6 +337,7 @@ http.createServer(function (req, res) {
 
                 // build query
                 strQuery = buildSuggestionQuery(post);
+                console.log(strQuery)
 
                 // send request
                 axios.get(strQuery)
@@ -324,6 +347,7 @@ http.createServer(function (req, res) {
                     var input = [post['input']];
 
                     // prepare response
+                    console.log(response.data.suggest[suggester])
                     var suggestionResponse = response.data.suggest[suggester][input].suggestions;
                     suggestionResponse.forEach(element => {
                         suggestions.push(element['term']);

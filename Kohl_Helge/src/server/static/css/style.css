@@ -129,6 +129,17 @@ div.title{
     padding-right:0;
 }
 
+.btn-group-vertical .btn{
+    border-radius: 0;
+    border-top-right-radius: 0.25rem;
+    border-bottom-right-radius: 0.25rem;
+}
+
+.btn-group-vertical a.btn{
+    display: flex;
+    align-items: center;
+}
+
 @media only screen and (min-width: 1200px){
     div.info{
         width: 18%;
@@ -217,6 +228,10 @@ div.title{
     }
 }
 
+.movielink{
+    font-size: 1em;
+}
+
 /* Datetimepicker */
 .vdatetime-calendar__month__day--selected > span > span,
 .vdatetime-popup__actions__button,
@@ -235,6 +250,11 @@ div.title{
 
     header .btn{
         border-radius: 0px;
+    }
+
+    .btn-group-vertical .btn{
+        border-top-right-radius: 0;
+        border-bottom-right-radius: 0;
     }
 
     .card{

@@ -5,6 +5,7 @@
     <meta name="viewport" 
           content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>epg</title>
+    <link rel="icon" type="image/png" sizes="16x16" href="https://img.icons8.com/dusk/64/000000/film-soundtracks.png">
     <link rel="stylesheet" href="static/css/vue-datetime.css">
     <link rel="stylesheet" href="static/css/bootstrap.css">
     <link rel="stylesheet" href="static/css/bootstrap-vue.css">
@@ -19,26 +20,38 @@
         <b-navbar type="dark" variant="dark" class="justify-content-center">
             <b-navbar-nav>
                 <b-nav-item 
+                    v-b-tooltip.hover 
+                    title="Suche"
                     v-bind:class="{ active: activeSide==='search'}" 
                     v-on:click="activeSide = 'search'">
                     <span class="fas fa-search"></span>
                 </b-nav-item>
-                <b-nav-item 
+                <b-nav-item
+                    v-b-tooltip.hover 
+                    title="Ergebnisse"
                     v-bind:class="{ active: activeSide==='result' }" 
-                    v-on:click="activeSide = 'result'; requestData()">
+                    v-on:click="requestData(); activeSide = 'result';">
                     <span class="fas fa-list"></span>
                 </b-nav-item>
                 <b-nav-item 
+                    v-b-tooltip.hover 
+                    title="Favouriten"
                     v-bind:class="{ active: activeSide==='favourites' }" 
-                    v-on:click="activeSide = 'favourites'; requestFavourites()">
+                    v-on:click="requestFavourites(); activeSide = 'favourites';">
                     <span class="fas fa-heart"></span>
                 </b-nav-item>
                 <b-nav-item 
+                    v-b-tooltip.hover 
+                    title="Einstellungen"
                     v-bind:class="{ active: activeSide==='settings' }" 
                     v-on:click="activeSide = 'settings'">
                     <span class="fas fa-user-cog"></span>
                 </b-nav-item>
-                <b-nav-item-dropdown text="lang" right>
+                <b-nav-item-dropdown 
+                    v-b-tooltip.hover 
+                    title="Sprache"
+                    text="lang" 
+                    right>
                     <template v-slot:button-content>
                         <span class="fas fa-globe"></span>
                     </template>
@@ -190,16 +203,31 @@
             </b-container>
             <!-- channel end -->
             <!-- date -->
-            <!-- TODO: add reset -->
             <b-container class="pt-3">
                 <b-card no-body>
                     <b-card-header header-tag="header" class="p-0 nobackground">
                         <b-button block v-b-toggle.collapse-3>Datum</b-button>
                     </b-card-header>
-                    <b-collapse id="collapse-3" visible class="mt-2">
+                    <b-collapse id="collapse-3" class="mt-2">
                         <b-card-body>
                             <label>Start:</label>
                             <div class="daterangebutton mb-2">
+                                <b-button variant="secondary" 
+                                    v-on:click="changeTime('start', start.from, 'Vormittag')">
+                                    Vormittag
+                                </b-button>
+                                <b-button variant="secondary" 
+                                    v-on:click="changeTime('start', start.from, 'Nachmittag')">
+                                    Nachmittag
+                                </b-button>
+                                <b-button variant="secondary" 
+                                    v-on:click="changeTime('start', start.from, 'Abend')">
+                                    Abend
+                                </b-button>
+                                <b-button variant="secondary" 
+                                    v-on:click="changeTime('start', start.from, 'Nacht')">
+                                    Nacht
+                                </b-button>
                                 <b-button variant="secondary" 
                                     v-on:click="changeTime('start', start.from, 'Vormittag')">
                                     Vormittag
@@ -228,7 +256,6 @@
                                         zone='local'
                                         value-zone='local'
                                         type="datetime" 
-                                        :placeholder="'Start'" 
                                         v-model="start.from"
                                         :phrases="{ok: 'OK', cancel: 'Abbruch'}"
                                         class="mb-3">
@@ -240,7 +267,6 @@
                                         zone='local'
                                         value-zone='local'
                                         type="datetime"     
-                                        :placeholder="'Ende'"
                                         v-model="start.till"
                                         :phrases="{ok: 'OK', cancel: 'Abbruch'}"
                                         class="mb-3">
@@ -276,8 +302,7 @@
                                     <datetime 
                                         zone='local'
                                         value-zone='local'
-                                        type="datetime" 
-                                        :placeholder="'Start'" 
+                                        type="datetime"  
                                         v-model="stop.from"
                                         :phrases="{ok: 'OK', cancel: 'Abbruch'}"
                                         class="mb-3">
@@ -289,7 +314,6 @@
                                         zone='local'
                                         value-zone='local'
                                         type="datetime"     
-                                        :placeholder="'Ende'"
                                         v-model="stop.till"
                                         :phrases="{ok: 'OK', cancel: 'Abbruch'}"
                                         class="mb-3">
@@ -307,8 +331,40 @@
         <div v-if="activeSide==='result' || activeSide==='favourites'"> 
             <template>
                 <div class="overflow-auto mb-2">
+                    <b-container class="my-3 px-3">
+                        <h4 class="text-center">{{queryResult.numFound}} Ergebnisse</h4>
+                        <div v-if="activeSide==='result'" class="mb-3">
+                            Sortieren nach:
+                            <b-row class="mx-0">
+                                <b-input-group>
+                                    <select v-model="queryResult.sortBy" class="form-control">
+                                        <option v-bind:value="undefined">Keine Sortierung</option>
+                                        <option v-bind:value="'title_'+language">Titel</option>
+                                        <option v-bind:value="'subtitle_'+language">Untertitel</option>
+                                        <option value="channel">Sender</option>
+                                        <option value="start">Start</option>
+                                        <option value="stop">Ende</option>
+                                    </select>
+                                    <div class="input-group-append">
+                                        <b-button v-on:click="queryResult.sort = 'desc'" v-if="queryResult.sort === 'asc'">
+                                            <span class="fas fa-arrow-up"></span>
+                                        </b-button>
+                                        <b-button v-on:click="queryResult.sort = 'asc'" v-if="queryResult.sort === 'desc'">
+                                            <span class="fas fa-arrow-down"></span>
+                                        </b-button>
+                                    </div>
+                                </b-input-goup>
+                            </b-row>
+                        </div>
+                        <div class="mb-3">
+                            Ergebnisse pro Seite:
+                            <b-row class="mx-0">
+                                <b-form-input v-model="queryResult.perPage" type="number"></b-form-input>
+                            </b-row>
+                        </div>
+                    </b-container>
                     <!-- pagination -->
-                    <div class="my-3">
+                    <div class="my-3" v-if="Object.keys(queryResult.data).length !== 0">
                         <b-pagination
                             v-model="queryResult.currentPage"
                             :total-rows="queryResult.numFound"
@@ -320,12 +376,17 @@
                         </b-pagination>
                     </div>
                     <!-- content -->
-                    <b-container v-if="Object.keys(queryResult.data).length === 0">
-                        <b-card>
-                            <h4 style="text-align: center;">Keine Sendungen gefunden!</h4>
-                        </b-card>
+                    <b-container>
+                        <div v-if="queryResult.loading" class="d-flex justify-content-center">
+                            <b-spinner style="width: 3rem; height: 3rem;" label="Large Spinner"></b-spinner>
+                        </div>
+                        <div v-if="!queryResult.loading && Object.keys(queryResult.data).length === 0">
+                            <b-card>
+                                <h4 class="text-center">Keine Sendungen gefunden!</h4>
+                            </b-card>
+                        </div>
                     </b-container>
-                    <b-container v-for="item in queryResult.data" v-bind:key="item.id">
+                    <b-container v-if="!queryResult.loading" v-for="item in queryResult.data" v-bind:key="item.id">
                         <b-card no-body class="mb-1">
                             <b-card-header 
                                 header-tag="header" 
@@ -358,19 +419,33 @@
                                             </div>
                                         </div>  
                                     </b-button>
-                                    <b-button v-on:click="addFavourite(item)" v-if="!item.isFavourite" class="record">
-                                        <span class="fas fa-heart"></span>
-                                    </b-button>
-                                    <b-button v-on:click="removeFavourite(item)" v-else class="record">
-                                        <span class="fas fa-heart red"></span>
-                                    </b-button>
+                                    <b-button-group vertical>
+                                        <b-button v-bind:href="item.titleLink" v-if="item.titleLink !== false" target="_blank">
+                                            <span class="fas fa-external-link-alt"></span>
+                                        </b-button>
+                                        <b-button v-on:click="addFavourite(item)" v-if="!item.isFavourite" class="record">
+                                            <span class="fas fa-heart"></span>
+                                        </b-button>
+                                        <b-button v-on:click="removeFavourite(item)" v-else class="record">
+                                            <span class="fas fa-heart red"></span>
+                                        </b-button>
+                                    </b-button-group>
                                 </b-button-group>
                             </b-card-header>
 
                             <b-collapse v-bind:id="'collapse-' + item.id">
                                 <b-card-body>
-                                    <b-card-text>
+                                    <b-card-text class="pb-3">
                                         <strong>
+                                            <b-badge 
+                                                class="float-right movielink" 
+                                                target="_blank" 
+                                                v-bind:href="item.subtitleLink" 
+                                                pill 
+                                                variant="secondary"
+                                                v-if="item.subtitleLink !== false">
+                                                Mediathek <span class="fas fa-external-link-alt"></span>
+                                            </b-badge>
                                             <div v-if="language === 'ger'" v-html="item.subtitle_ger"></div>
                                             <div v-if="language === 'fre'" v-html="item.subtitle_fre"></div>
                                         </strong>
@@ -381,6 +456,17 @@
                             </b-collapse>
                         </b-card>
                     </b-container>
+                    <div class="my-3" v-if="Object.keys(queryResult.data).length !== 0">
+                        <b-pagination
+                            v-model="queryResult.currentPage"
+                            :total-rows="queryResult.numFound"
+                            :per-page="queryResult.perPage"
+                            pills
+                            first-text="‹‹"
+                            last-text="››"
+                            align="center">
+                        </b-pagination>
+                    </div>
                 </div>
             </template>
         </div>

@@ -15,7 +15,7 @@ var filter = new Vue({
                     negate: false,
                     concatType: '',
                     type: 'title',
-                    input: 'Harry Potter',
+                    input: '',
                 },
             ],
         },
@@ -44,6 +44,9 @@ var filter = new Vue({
             currentPage: 1,
             perPage: 10,
             numFound: 0,
+            loading: false,
+            sort: "asc",
+            sortBy: undefined,
             data: []
         },
         // suggestions for input fields
@@ -192,8 +195,24 @@ var filter = new Vue({
                 requestFavourites();
             }
         },
+        'queryResult.perPage': function(){
+            if(filter.activeSide === 'result'){
+                requestData();
+            }
+            else if(filter.activeSide === 'favourites'){
+                requestFavourites();
+            }
+        },
         // update shown data by language
         'language': function(){
+            requestData();
+        },
+        'queryResult.sort': function(){
+            if(filter.queryResult.sortBy !== undefined){
+                requestData();
+            }
+        },
+        'queryResult.sortBy': function(){
             requestData();
         }
     }
@@ -201,6 +220,9 @@ var filter = new Vue({
 
 // request by input
 function requestData(){
+    filter.queryResult.data = [];
+    filter.queryResult.loading = true;
+
     var start = {
         from: "*",
         till: "*"
@@ -224,15 +246,19 @@ function requestData(){
         stop: stop,
         rows: filter.queryResult.perPage,
         currentPage: filter.queryResult.currentPage,
+        sortBy: filter.queryResult.sortBy,
+        sort: filter.queryResult.sort
     }))
     .then(response => {
         filter.queryResult.numFound = response.data.response.numFound;
         filter.queryResult.data = response.data.response.docs;
 
         // reset current page if page is higher than pagesum
-        if(filter.queryResult.currentPage > filter.queryResult.numFound/10 + 1){
+        if(filter.queryResult.currentPage > filter.queryResult.numFound/filter.queryResult.perPage + 1){
             filter.queryResult.currentPage = 1;
         }
+
+        filter.queryResult.loading = false;
     }).catch(err => {
         console.log(err);
     });
@@ -240,6 +266,9 @@ function requestData(){
 
 // requests favourites
 function requestFavourites(){
+    filter.queryResult.data = [];
+    filter.queryResult.loading = true;
+
     axios.post("favourites", JSON.stringify({
         rows: filter.queryResult.perPage,
         currentPage: filter.queryResult.currentPage,
@@ -249,9 +278,11 @@ function requestFavourites(){
         filter.queryResult.data = response.data.response;
 
         // reset current page if page is higher than pagesum
-        if(filter.queryResult.currentPage > filter.queryResult.numFound/10 + 1){
+        if(filter.queryResult.currentPage > filter.queryResult.numFound/filter.queryResult.perPage + 1){
             filter.queryResult.currentPage = 1;
         }
+
+        filter.queryResult.loading = false;
     }).catch(err => {
         console.log(err);
     });
