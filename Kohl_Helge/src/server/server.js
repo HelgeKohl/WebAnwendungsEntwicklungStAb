@@ -39,35 +39,71 @@ function buildQuery(data){
 
     if(query !== "") query += "AND ";
 
+    // any language field must be != null
     query +=  "(" + "title_" + data['language'] + ":[* TO *]"
                                 + " AND title_" + data['language'] + ":[* TO *]"
                                 + " AND title_" + data['language'] + ":[* TO *]" + ")";
 
-    var today = encodeURIComponent("start:[" + data['now'] + "/DAY TO " + data['now'] + "/DAY+1DAY]");
-    var tomorrow = encodeURIComponent("start:[" + data['now'] + "/DAY+1DAY TO " + data['now'] + "/DAY+2DAY]");
-    var nextNDays = encodeURIComponent("start:[" + data['now'] + "/DAY TO " + data['now'] + "/DAY+" + data['nextN'] + "DAY]");
 
-    facets = "&facet.query=" + today + "&facet.query=" + tomorrow + "&facet.query=" + nextNDays;
+    var facets = {}                            
 
-    var filter = "&fq=";
-    if(data['filter'] === '') filter += "start:" +encodeURIComponent("[* TO *]");
-    else if(data['filter'] === 'today') filter += today;
-    else if(data['filter'] === 'tomorrow') filter += tomorrow;
-    else if(data['filter'] === 'nextN') filter += nextNDays;
+    // date facets
+    facets['today'] = encodeURIComponent("start:[" + data['now'] + "/DAY TO " + data['now'] + "/DAY+1DAY]");
+    facets['tomorrow'] = encodeURIComponent("start:[" + data['now'] + "/DAY+1DAY TO " + data['now'] + "/DAY+2DAY]");
+    facets['nextN'] = encodeURIComponent("start:[" + data['now'] + "/DAY TO " + data['now'] + "/DAY+" + data['nextN'] + "DAYS]");
 
+    // date facets + facetfield channel
+    facetquery = "&facet.query=" + facets.today + "&facet.query=" + facets.tomorrow + "&facet.query=" + facets.nextN +"&facet.field=channel";
+
+    // handles selected facets
+    var filter = createFilterQuery(facets, data['filter']);
+    
+    
+    if(data['filter'].length === 0) filter += "start:" +encodeURIComponent("[* TO *]");
+
+    // query daterange for start and stop, default is [* TO *]
     var startrange = " AND start:[" + data['start'].from + " TO " + data['start'].till + "]";
     var stoprange = " AND stop:[" + data['stop'].from + " TO " + data['stop'].till + "]";
     
+    query = url + encodeURIComponent(query + startrange + stoprange) + facetquery + filter;
     
-    query = url + encodeURIComponent(query + startrange + stoprange) + facets + filter;
-    
+    // add sorting
     if(data['sortBy'] !== undefined){
         query += encodeURI("&sort=" + data['sortBy'] + " " + data['sort']);
     }
+
+    // result range
     query += "&rows="+ data['rows'] + "&start=" + (data['currentPage'] * data['rows'] - data['rows']);
 
-    console.log(query)
     return query;
+}
+
+// creates a filterquery for active facets
+function createFilterQuery(facets, filter){
+    let dateQuery = "";
+    let channelQuery = "";
+
+    for(let i = 0; i < filter.date.length; i++){
+        if(i != 0){
+            dateQuery += encodeURIComponent(" OR ");
+        }
+        else if(i === 0){
+            dateQuery = "&fq=";
+        }
+        dateQuery += facets[filter.date[i]];
+    }
+
+    for(let i = 0; i < filter.channel.length; i++){
+        if(i != 0){
+            channelQuery += encodeURIComponent(" OR ");
+        }
+        else if(i === 0){
+            channelQuery = "&fq=";
+        }
+        channelQuery += encodeURIComponent("channel:\"" + filter.channel[i] + "\"");
+    }
+
+    return dateQuery + channelQuery;
 }
 
 // builds the suggestion query for solr
@@ -352,7 +388,6 @@ http.createServer(function (req, res) {
 
                 // build query
                 strQuery = buildSuggestionQuery(post);
-                console.log(strQuery)
 
                 // send request
                 axios.get(strQuery)

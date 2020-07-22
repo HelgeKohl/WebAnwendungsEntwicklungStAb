@@ -45,12 +45,15 @@ var filter = new Vue({
             perPage: 10,
             numFound: 0,
             nextN: 5,
-            filterquery: '',
+            dateFilter: [],
+            channelFilter: [],
             loading: false,
             sort: "asc",
             sortBy: undefined,
             data: [],
-            facets: {}
+            facets: {
+                channel: []
+            }
         },
         // suggestions for input fields
         suggestions:[],
@@ -188,10 +191,10 @@ var filter = new Vue({
             });
         },
         toggleFacet(facet){
-            if(filter.queryResult.filterquery === ""){
-                filter.queryResult.filterquery = facet;
-            }   
-            else filter.queryResult.filterquery = "";
+            if(filter.queryResult.filterquery === facet){
+                filter.queryResult.filterquery = "";
+            }
+            else filter.queryResult.filterquery = facet;
         },
     },
     watch: {
@@ -205,8 +208,7 @@ var filter = new Vue({
             }
         },
         'queryResult.perPage': function(){
-            if(filter.queryResult.perPage > 100) filter.queryResult.perPage = 100;
-            else if(filter.queryResult.perPage < 1) filter.queryResult.perPage = 1;
+            if(filter.queryResult.perPage > 100) filter.queryResult.perPage.slice(0,2);
 
             if(filter.activeSide === 'result'){
                 requestData();
@@ -227,7 +229,10 @@ var filter = new Vue({
         'queryResult.sortBy': function(){
             requestData();
         },
-        'queryResult.filterquery': function(){
+        'queryResult.dateFilter': function(){
+            requestData();
+        },
+        'queryResult.channelFilter': function(){
             requestData();
         }
     }
@@ -259,7 +264,10 @@ function requestData(){
         channel: filter.channels.data,
         start: start, 
         stop: stop,
-        filter: filter.queryResult.filterquery,
+        filter: {
+            date: filter.queryResult.dateFilter,
+            channel: filter.queryResult.channelFilter
+        },
         rows: filter.queryResult.perPage,
         currentPage: filter.queryResult.currentPage,
         sortBy: filter.queryResult.sortBy,
@@ -276,15 +284,27 @@ function requestData(){
             filter.queryResult.currentPage = 1;
         }
 
-        if(filter.queryResult.filterquery === ""){
+        // date facets
+        if(filter.queryResult.dateFilter.length === 0){
             filter.queryResult.facets['today'] = response.data.facet_counts.facet_queries[Object.keys(response.data.facet_counts.facet_queries)[0]];
             filter.queryResult.facets['tomorrow'] = response.data.facet_counts.facet_queries[Object.keys(response.data.facet_counts.facet_queries)[1]];
             filter.queryResult.facets['nextN'] = response.data.facet_counts.facet_queries[Object.keys(response.data.facet_counts.facet_queries)[2]];
         }
+        
+        // channel facets
+        if(filter.queryResult.channelFilter.length === 0){
+            let channelFacets = [];
+            let channelFacetResponse = response.data.facet_counts.facet_fields.channel;
+    
+            for (let index = 0; index < channelFacetResponse.length; index = index + 2) {
+                if(channelFacetResponse[index+1] !== 0){
+                    channelFacets.push([channelFacetResponse[index], channelFacetResponse[index+1]])
+                }
+            }
+            filter.queryResult.facets.channel = channelFacets;
+        }
 
         filter.queryResult.loading = false;
-
-        console.log(response.data)
     }).catch(err => {
         console.log(err);
     });

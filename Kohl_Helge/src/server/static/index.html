@@ -307,30 +307,7 @@
                 <div class="overflow-auto mb-2">
                     <b-container class="my-3 px-3">
                         <h4 class="text-center">{{queryResult.numFound}} Ergebnisse</h4>
-                        <div class="text-center buttonGroupPadding" v-if="activeSide === 'result'">
-                            <b-button
-                                v-bind:variant="queryResult.filterquery === 'today' ? 'success' : 'secondary'"
-                                v-if="queryResult.facets.today > 0" 
-                                v-on:click="toggleFacet('today')"
-                                v-bind:disabled="queryResult.filterquery !== 'today' && queryResult.filterquery !== ''">
-                                Heute <b-badge variant="light">{{queryResult.facets.today}}</b-badge>
-                            </b-button>
-                            <b-button 
-                            v-bind:variant="queryResult.filterquery === 'tomorrow' ? 'success' : 'secondary'" 
-                                v-if="queryResult.facets.tomorrow > 0" 
-                                v-on:click="toggleFacet('tomorrow')"
-                                v-bind:disabled="queryResult.filterquery !== 'tomorrow' && queryResult.filterquery !== ''">
-                                Morgen <b-badge variant="light">{{queryResult.facets.tomorrow}}</b-badge>
-                            </b-button>
-                            <b-button 
-                            v-bind:variant="queryResult.filterquery === 'nextN' ? 'success' : 'secondary'"
-                                v-if="queryResult.facets.nextN > 0" 
-                                v-on:click="toggleFacet('nextN')"
-                                v-bind:disabled="queryResult.filterquery !== 'nextN' && queryResult.filterquery !== ''">
-                                Nächste {{queryResult.nextN}} Tage <b-badge variant="light">{{queryResult.facets.nextN}}</b-badge>
-                            </b-button>
-                            
-                        </div>
+                        <template>
                         <div v-if="activeSide==='result'" class="mb-3">
                             Sortieren nach:
                             <b-row class="mx-0">
@@ -363,6 +340,38 @@
                     </b-container>
                     <!-- pagination -->
                     <div class="my-3" v-if="Object.keys(queryResult.data).length !== 0">
+                        <div v-if="activeSide==='result'">
+                            <b-button v-b-toggle.sidebar class="mb-3"><span class="fas fa-filter float-right"></span></b-button>
+                            <b-sidebar id="sidebar" bg-variant="dark" text-variant="light" shadow>
+                                <b-card class="m-3 text-dark">
+                                    <b-form-group class="mb-0" label="Zeitraum:">
+                                        <b-form-checkbox-group stacked v-model="queryResult.dateFilter">
+                                            <b-form-checkbox value="today">
+                                                Heute <b-badge variant="secondary">{{queryResult.facets.today}}</b-badge>
+                                            </b-form-checkbox>
+                                            <b-form-checkbox value="tomorrow">
+                                                Morgen <b-badge variant="secondary">{{queryResult.facets.tomorrow}}</b-badge>
+                                            </b-form-checkbox>
+                                            <b-form-checkbox value="nextN">
+                                                Nächste {{queryResult.nextN}} Tage <b-badge variant="secondary">{{queryResult.facets.nextN}}</b-badge>
+                                            </b-form-checkbox>
+                                        </b-form-checkbox-group>
+                                    </b-form-group>
+                                </b-card>
+                                <b-card class="m-3 text-dark" v-if="queryResult.facets.channel.length > 0">
+                                    <b-form-group class="mb-0" label="Sender:">
+                                        <b-form-checkbox-group stacked v-model="queryResult.channelFilter">
+                                            <b-form-checkbox 
+                                                v-for="channel in queryResult.facets.channel"
+                                                v-bind:value="channel[0]">
+                                                {{channel[0]}} <b-badge variant="secondary">{{channel[1]}}</b-badge>
+                                            </b-form-checkbox>
+                                        </b-form-checkbox-group>
+                                    </b-form-group>
+                                </b-card>
+                            </b-sidebar>
+                        </div>
+                    </template>
                         <b-pagination
                             v-model="queryResult.currentPage"
                             :total-rows="queryResult.numFound"
