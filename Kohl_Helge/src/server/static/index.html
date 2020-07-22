@@ -306,42 +306,13 @@
             <template>
                 <div class="overflow-auto mb-2">
                     <b-container class="my-3 px-3">
-                        <h4 class="text-center">{{queryResult.numFound}} Ergebnisse</h4>
-                        <template>
-                        <div v-if="activeSide==='result'" class="mb-3">
-                            Sortieren nach:
-                            <b-row class="mx-0">
-                                <b-input-group>
-                                    <select v-model="queryResult.sortBy" class="form-control">
-                                        <option v-bind:value="undefined">Keine Sortierung</option>
-                                        <option v-bind:value="'title_'+language">Titel</option>
-                                        <option v-bind:value="'subtitle_'+language">Untertitel</option>
-                                        <option value="channel">Sender</option>
-                                        <option value="start">Start</option>
-                                        <option value="stop">Ende</option>
-                                    </select>
-                                    <div class="input-group-append">
-                                        <b-button v-on:click="queryResult.sort = 'desc'" v-if="queryResult.sort === 'asc'">
-                                            <span class="fas fa-arrow-up"></span>
-                                        </b-button>
-                                        <b-button v-on:click="queryResult.sort = 'asc'" v-if="queryResult.sort === 'desc'">
-                                            <span class="fas fa-arrow-down"></span>
-                                        </b-button>
-                                    </div>
-                                </b-input-goup>
-                            </b-row>
-                        </div>
-                        <div class="mb-3">
-                            Ergebnisse pro Seite:
-                            <b-row class="mx-0">
-                                <b-form-input v-model="queryResult.perPage" type="number" min="1" max="100"></b-form-input>
-                            </b-row>
-                        </div>
-                    </b-container>
-                    <!-- pagination -->
-                    <div class="my-3" v-if="Object.keys(queryResult.data).length !== 0">
+                        <h4 class="text-center">
+                            {{queryResult.numFound}} Ergebnisse
+                        </h4>
                         <div v-if="activeSide==='result'">
-                            <b-button v-b-toggle.sidebar class="mb-3"><span class="fas fa-filter float-right"></span></b-button>
+                            <div class="justify-content-center">
+                                <b-button v-b-toggle.sidebar pill class="mb-3 px-4"><span class="fas fa-filter"></span></b-button>
+                            </div>
                             <b-sidebar id="sidebar" bg-variant="dark" text-variant="light" shadow>
                                 <b-card class="m-3 text-dark">
                                     <b-form-group class="mb-0" label="Zeitraum:">
@@ -371,7 +342,38 @@
                                 </b-card>
                             </b-sidebar>
                         </div>
-                    </template>
+                        <div v-if="activeSide==='result'" class="mb-3">
+                            Sortieren nach:
+                            <b-row class="mx-0">
+                                <b-input-group>
+                                    <select v-model="queryResult.sortBy" class="form-control">
+                                        <option v-bind:value="undefined">Keine Sortierung</option>
+                                        <option v-bind:value="'title_'+language">Titel</option>
+                                        <option v-bind:value="'subtitle_'+language">Untertitel</option>
+                                        <option value="channel">Sender</option>
+                                        <option value="start">Start</option>
+                                        <option value="stop">Ende</option>
+                                    </select>
+                                    <div class="input-group-append">
+                                        <b-button v-on:click="queryResult.sort = 'desc'" v-if="queryResult.sort === 'asc'">
+                                            <span class="fas fa-sort-amount-up-alt"></span>
+                                        </b-button>
+                                        <b-button v-on:click="queryResult.sort = 'asc'" v-if="queryResult.sort === 'desc'">
+                                            <span class="fas fa-sort-amount-down-alt"></span>
+                                        </b-button>
+                                    </div>
+                                </b-input-goup>
+                            </b-row>
+                        </div>
+                        <div class="mb-3">
+                            Ergebnisse pro Seite:
+                            <b-row class="mx-0">
+                                <b-form-input v-model="queryResult.perPage" type="number" min="1" max="100"></b-form-input>
+                            </b-row>
+                        </div>
+                    </b-container>
+                    <!-- pagination -->
+                    <div class="my-3" v-if="Object.keys(queryResult.data).length !== 0">
                         <b-pagination
                             v-model="queryResult.currentPage"
                             :total-rows="queryResult.numFound"

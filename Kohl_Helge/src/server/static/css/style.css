@@ -88,6 +88,10 @@ em{
     height: 100%;
 }
 
+div.justify-content-center{
+    display: flex;
+}
+
 /* CardHeader */
 .broadcast{
     width:100%;
@@ -97,12 +101,6 @@ em{
 
 .broadcast div{
     float: left;
-}
-
-div.info{
-    width: 20%;
-    display: flex;
-    align-items: center;
 }
 
 div.logo{
