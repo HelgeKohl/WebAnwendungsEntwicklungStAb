@@ -23,19 +23,30 @@ function buildQuery(data){
         }
     });
 
-    data['channel'].forEach(element =>{ 
-        if(element.input != ""){
+    // remove empty channel inputs
+    for (let index = 0; index < data['channel'].length; index++) {
+        if(data['channel'][index].input === ""){
+            data['channel'].splice(index, 1);
+            index -= 1;
+        }
+    }
+
+    if(data['channel'].length > 0){
+        if(query !== "") query += " AND ";
+        query += "(";
+        data['channel'].forEach(element =>{ 
             // only append concat type if its not the first attribute
-            if(query != ""){
-                query += " " + element.concatType + " ";
+            if(data['channel'].indexOf(element) != 0){
+                query += " OR ";
             }
             if(element.negate){
                 query += "-";
             }
             // concat searchfield to query
             query += "channel:" + "\"" + replaceAll(element.input, "\"", "\\\"") + "\"";
-        }
-    });
+        });
+        query += ")";
+    }
 
     if(query !== "") query += "AND ";
 
@@ -55,7 +66,6 @@ function buildQuery(data){
 
     // date facets + facetfield channel
     facetquery = "";
-    console.log(Object.keys(facets))
     Object.keys(facets).forEach(key => {
         facetquery += "&facet.query=" + facets[key];
     });
@@ -81,7 +91,6 @@ function buildQuery(data){
 
     // result range
     query += "&rows="+ data['rows'] + "&start=" + (data['currentPage'] * data['rows'] - data['rows']);
-
     console.log(query)
     return query;
 }
@@ -280,7 +289,7 @@ http.createServer(function (req, res) {
                     res.setHeader('Content-Type', 'application/json');
                     res.end(JSON.stringify(response.data));
                 }).catch((err) => {
-                    console.log(err);
+                    // console.log(err);
                     fs.readFile('./404.html', function(error, content) {
                         res.writeHead(404, { 'Content-Type': 'text/html' });
                         res.end(content, 'utf-8');
@@ -345,7 +354,7 @@ http.createServer(function (req, res) {
                     currentData = JSON.parse(rawdata);
                 }
 
-                // // dont store broadcasts twice
+                // dont store broadcasts twice
                 if(!containsObject(post, currentData)){      
                     currentData.push(post);
 
@@ -396,7 +405,7 @@ http.createServer(function (req, res) {
 
                 // build query
                 strQuery = buildSuggestionQuery(post);
-                console.log(strQuery)
+
                 // send request
                 axios.get(strQuery)
                 .then((response) => {

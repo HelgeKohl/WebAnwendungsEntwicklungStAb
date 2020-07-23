@@ -9,26 +9,21 @@ var filter = new Vue({
         language: "ger",
         activeSide: "search",
         // keyword input
-        keywords:{
-            data: [
-                {   
-                    negate: false,
-                    concatType: '',
-                    type: 'title',
-                    input: '',
-                },
-            ],
-        },
+        keywords:[
+            {   
+                negate: false,
+                concatType: '',
+                type: 'title',
+                input: '',
+            },
+        ],
         // channelinput
-        channels:{
-            data: [
-                {
-                    negate: false,
-                    concatType: 'AND',
-                    input: '',
-                },
-            ],
-        },
+        channels:[
+            {
+                negate: false,
+                input: '',
+            },
+        ],
         // datetime range start
         start:{
             from: '',
@@ -61,19 +56,19 @@ var filter = new Vue({
     methods:{
         // add keywordinput element
         addKeywordInput() {
-            filter.keywords.data.push({negate: false, concatType: 'AND', type: 'title', input: ''})
+            filter.keywords.push({negate: false, concatType: 'AND', type: 'title', input: ''})
         },
         // remove keywordinput element
         removeKeywordInput(item) {
-            filter.keywords.data.splice(filter.keywords.data.indexOf(item),1)
+            filter.keywords.splice(filter.keywords.indexOf(item),1)
         },
         // add channelinput element
         addChannelInput() {
-            filter.channels.data.push({negate: false, concatType: 'AND', input: ''})
+            filter.channels.push({negate: false, concatType: 'AND', input: ''})
         },
         // remove channelinput element
         removeChannelInput(item) {
-            filter.channels.data.splice(filter.channels.data.indexOf(item),1)
+            filter.channels.splice(filter.channels.indexOf(item),1)
         },
         requestData () {
             requestData();
@@ -197,7 +192,6 @@ var filter = new Vue({
         },
         // prevents input of +/-/./,
         removeNonNumeric(event){
-            // return value.replace( new RegExp(/\D/g), "" );
             event = (event) ? event : window.event;
             var charCode = (event.which) ? event.which : event.keyCode;
             if ((charCode > 31 && (charCode < 48 || charCode > 57))) {
@@ -269,8 +263,8 @@ function requestData(){
 
     axios.post("search", JSON.stringify({
         language: filter.language,
-        keywords: filter.keywords.data,
-        channel: filter.channels.data,
+        keywords: filter.keywords,
+        channel: filter.channels,
         start: start, 
         stop: stop,
         filter: {

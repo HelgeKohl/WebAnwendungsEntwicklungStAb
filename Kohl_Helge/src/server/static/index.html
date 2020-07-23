@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" 
           content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>epg</title>
+    <title>Web-Anwendungsentwicklung</title>
     <link rel="icon" type="image/png" sizes="16x16" href="https://img.icons8.com/dusk/64/000000/film-soundtracks.png">
     <link rel="stylesheet" href="static/css/vue-datetime.css">
     <link rel="stylesheet" href="static/css/bootstrap.css">
@@ -77,12 +77,12 @@
                                 Stichwortsuche hinzufügen
                             </b-button>
                             <!-- keyword search -->
-                            <div v-for="(item, index) in keywords.data">
+                            <div v-for="(item, index) in keywords">
                                 <!-- selectiontype -->
                                 <b-input-group class="mt-3">
                                     <!-- concat type -->
                                     <select class="form-control"
-                                        v-if="keywords.data.indexOf(item) != 0"
+                                        v-if="keywords.indexOf(item) != 0"
                                         v-model:value="item.concatType">
                                         <option v-bind:value="'AND'">und</option>
                                         <option v-bind:value="'OR'">oder</option>
@@ -97,7 +97,7 @@
                                     <div class="input-group-append">
                                         <b-button variant="danger"
                                             class="form-controll"
-                                            v-bind:disabled="keywords.data.indexOf(item) == 0"
+                                            v-bind:disabled="keywords.indexOf(item) == 0"
                                             v-on:click="removeKeywordInput(item)">
                                             <span class="fas fa-trash-alt"></span>
                                         </b-button>
@@ -144,16 +144,9 @@
                                 v-on:click="addChannelInput">
                                 Sender hinzufügen
                             </b-button>
-                            <div v-for="item in channels.data">
+                            <div v-for="item in channels">
                                 <!-- selectiontype -->
                                 <b-input-group class="mt-3">
-                                    <!-- concat type -->
-                                    <select class="form-control"
-                                        v-if="channels.data.indexOf(item) != 0"
-                                        v-model:value="item.concatType">
-                                        <option v-bind:value="'AND'">und</option>
-                                        <option v-bind:value="'OR'">oder</option>
-                                    </select>
                                     <!-- negation -->
                                     <select class="form-control"
                                         v-model:value="item.negate">
@@ -164,7 +157,7 @@
                                     <div class="input-group-append">
                                         <b-button variant="danger" 
                                             class="form-controll"
-                                            v-bind:disabled="channels.data.indexOf(item) == 0"
+                                            v-bind:disabled="channels.indexOf(item) == 0"
                                             v-on:click="removeChannelInput(item)">
                                             <span class="fas fa-trash-alt"></span>
                                         </b-button>
