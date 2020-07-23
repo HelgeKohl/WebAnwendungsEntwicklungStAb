@@ -44,16 +44,23 @@ function buildQuery(data){
                                 + " AND title_" + data['language'] + ":[* TO *]"
                                 + " AND title_" + data['language'] + ":[* TO *]" + ")";
 
-
-    var facets = {}                            
+    var facets = {}  
 
     // date facets
     facets['today'] = encodeURIComponent("start:[" + data['now'] + "/DAY TO " + data['now'] + "/DAY+1DAY]");
     facets['tomorrow'] = encodeURIComponent("start:[" + data['now'] + "/DAY+1DAY TO " + data['now'] + "/DAY+2DAY]");
-    facets['nextN'] = encodeURIComponent("start:[" + data['now'] + "/DAY TO " + data['now'] + "/DAY+" + data['nextN'] + "DAYS]");
+    facets['yesterday'] = encodeURIComponent("start:[" + data['now'] + "/DAY-1DAY TO " + data['now'] + "/DAY]");
+    facets['nextN'] = encodeURIComponent("start:[" + data['now'] + "/DAY TO " + data['now'] + "/DAY+" + data['n'] + "DAYS]");
+    facets['previousN'] = encodeURIComponent("start:[" + data['now'] + "/DAY-" + data['n'] + "DAYS TO " + data['now'] + "/DAY]");
 
     // date facets + facetfield channel
-    facetquery = "&facet.query=" + facets.today + "&facet.query=" + facets.tomorrow + "&facet.query=" + facets.nextN +"&facet.field=channel";
+    facetquery = "";
+    console.log(Object.keys(facets))
+    Object.keys(facets).forEach(key => {
+        facetquery += "&facet.query=" + facets[key];
+    });
+
+    facetquery += "&facet.field=channel";
 
     // handles selected facets
     var filter = createFilterQuery(facets, data['filter']);
@@ -75,6 +82,7 @@ function buildQuery(data){
     // result range
     query += "&rows="+ data['rows'] + "&start=" + (data['currentPage'] * data['rows'] - data['rows']);
 
+    console.log(query)
     return query;
 }
 
@@ -388,7 +396,7 @@ http.createServer(function (req, res) {
 
                 // build query
                 strQuery = buildSuggestionQuery(post);
-
+                console.log(strQuery)
                 // send request
                 axios.get(strQuery)
                 .then((response) => {

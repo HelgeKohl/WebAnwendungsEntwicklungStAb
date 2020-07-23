@@ -303,181 +303,227 @@
         <!-- searchmenu end -->
         <!-- result menu -->
         <div v-if="activeSide==='result' || activeSide==='favourites'"> 
-            <template>
-                <div class="overflow-auto mb-2">
-                    <b-container class="my-3 px-3">
-                        <h4 class="text-center">
-                            {{queryResult.numFound}} Ergebnisse
-                        </h4>
-                        <div v-if="activeSide==='result'">
-                            <div class="justify-content-center">
-                                <b-button v-b-toggle.sidebar pill class="mb-3 px-4"><span class="fas fa-filter"></span></b-button>
-                            </div>
-                            <b-sidebar id="sidebar" bg-variant="dark" text-variant="light" shadow>
-                                <b-card class="m-3 text-dark">
-                                    <b-form-group class="mb-0" label="Zeitraum:">
-                                        <b-form-checkbox-group stacked v-model="queryResult.dateFilter">
-                                            <b-form-checkbox value="today">
-                                                Heute <b-badge variant="secondary">{{queryResult.facets.today}}</b-badge>
-                                            </b-form-checkbox>
-                                            <b-form-checkbox value="tomorrow">
-                                                Morgen <b-badge variant="secondary">{{queryResult.facets.tomorrow}}</b-badge>
-                                            </b-form-checkbox>
-                                            <b-form-checkbox value="nextN">
-                                                Nächste {{queryResult.nextN}} Tage <b-badge variant="secondary">{{queryResult.facets.nextN}}</b-badge>
-                                            </b-form-checkbox>
-                                        </b-form-checkbox-group>
-                                    </b-form-group>
-                                </b-card>
-                                <b-card class="m-3 text-dark" v-if="queryResult.facets.channel.length > 0">
-                                    <b-form-group class="mb-0" label="Sender:">
-                                        <b-form-checkbox-group stacked v-model="queryResult.channelFilter">
-                                            <b-form-checkbox 
-                                                v-for="channel in queryResult.facets.channel"
-                                                v-bind:value="channel[0]">
-                                                {{channel[0]}} <b-badge variant="secondary">{{channel[1]}}</b-badge>
-                                            </b-form-checkbox>
-                                        </b-form-checkbox-group>
-                                    </b-form-group>
-                                </b-card>
-                            </b-sidebar>
-                        </div>
-                        <div v-if="activeSide==='result'" class="mb-3">
-                            Sortieren nach:
-                            <b-row class="mx-0">
-                                <b-input-group>
-                                    <select v-model="queryResult.sortBy" class="form-control">
-                                        <option v-bind:value="undefined">Keine Sortierung</option>
-                                        <option v-bind:value="'title_'+language">Titel</option>
-                                        <option v-bind:value="'subtitle_'+language">Untertitel</option>
-                                        <option value="channel">Sender</option>
-                                        <option value="start">Start</option>
-                                        <option value="stop">Ende</option>
-                                    </select>
-                                    <div class="input-group-append">
-                                        <b-button v-on:click="queryResult.sort = 'desc'" v-if="queryResult.sort === 'asc'">
-                                            <span class="fas fa-sort-amount-up-alt"></span>
-                                        </b-button>
-                                        <b-button v-on:click="queryResult.sort = 'asc'" v-if="queryResult.sort === 'desc'">
-                                            <span class="fas fa-sort-amount-down-alt"></span>
-                                        </b-button>
-                                    </div>
-                                </b-input-goup>
-                            </b-row>
-                        </div>
-                        <div class="mb-3">
-                            Ergebnisse pro Seite:
-                            <b-row class="mx-0">
-                                <b-form-input v-model="queryResult.perPage" type="number" min="1" max="100"></b-form-input>
-                            </b-row>
-                        </div>
-                    </b-container>
-                    <!-- pagination -->
-                    <div class="my-3" v-if="Object.keys(queryResult.data).length !== 0">
-                        <b-pagination
-                            v-model="queryResult.currentPage"
-                            :total-rows="queryResult.numFound"
-                            :per-page="queryResult.perPage"
-                            pills
-                            first-text="‹‹"
-                            last-text="››"
-                            align="center">
-                        </b-pagination>
-                    </div>
-                    <!-- content -->
-                    <b-container>
-                        <div v-if="queryResult.loading" class="d-flex justify-content-center">
-                            <b-spinner style="width: 3rem; height: 3rem;" label="Large Spinner"></b-spinner>
-                        </div>
-                        <div v-if="!queryResult.loading && Object.keys(queryResult.data).length === 0">
-                            <b-card>
-                                <h4 class="text-center">Keine Sendungen gefunden!</h4>
-                            </b-card>
-                        </div>
-                    </b-container>
-                    <b-container v-if="!queryResult.loading" v-for="item in queryResult.data" v-bind:key="item.id">
-                        <b-card no-body class="mb-1">
-                            <b-card-header 
-                                header-tag="header" 
-                                class="p-0 nobackground">
-                                <b-button-group class="resultheader">
-                                    <b-button block 
-                                        class="header" 
-                                        v-b-toggle="'collapse-' + item.id">
-                                        <div class="broadcast">
-                                            <div class="info">
-                                                <div class="logo">
-                                                    <img
-                                                        v-bind:src="'static/img/senderlogos/' + item.logofile" 
-                                                        v-bind:alt="item.channel">
-                                                    </img>
-                                                </div>
-                                                <div class="date">
-                                                    <ul>
-                                                        <li><span class="date">{{ parseStrToDate(item.start) }}</span></li>
-                                                        <li><strong>{{ parseStrToTime(item.start) }}</strong></li>
-                                                        <li><span class="until"> bis {{ parseStrToTime(item.stop) }}</span></li>
-                                                    </ul>
-                                                </div>
-                                            </div>
-                                            <div class="title">
-                                                <h5 style="text-align: left;">
-                                                    <div v-if="language === 'ger'" v-html="item.title_ger"></div>
-                                                    <div v-if="language === 'fre'" v-html="item.title_fre"></div>
-                                                </h5>
-                                            </div>
-                                        </div>  
+            <div class="overflow-auto mb-2">
+                <b-container class="my-3 px-3">
+                    <h4 class="text-center">
+                        {{queryResult.numFound}} Ergebnisse
+                    </h4>
+                    <div v-if="activeSide==='result'" class="mb-3">
+                        Sortieren nach:
+                        <b-row class="mx-0">
+                            <b-input-group>
+                                <select v-model="queryResult.sortBy" class="form-control">
+                                    <option v-bind:value="undefined">Keine Sortierung</option>
+                                    <option v-bind:value="'title_'+language">Titel</option>
+                                    <option v-bind:value="'subtitle_'+language">Untertitel</option>
+                                    <option value="channel">Sender</option>
+                                    <option value="start">Start</option>
+                                    <option value="stop">Ende</option>
+                                </select>
+                                <div class="input-group-append">
+                                    <b-button v-on:click="queryResult.sort = 'desc'" v-if="queryResult.sort === 'asc'">
+                                        <span class="fas fa-sort-amount-up-alt"></span>
                                     </b-button>
-                                    <b-button-group vertical>
-                                        <b-button v-bind:href="item.titleLink" v-if="item.titleLink !== false" target="_blank">
-                                            <span class="fas fa-external-link-alt"></span>
-                                        </b-button>
-                                        <b-button v-on:click="addFavourite(item)" v-if="!item.isFavourite" class="record">
-                                            <span class="fas fa-heart"></span>
-                                        </b-button>
-                                        <b-button v-on:click="removeFavourite(item)" v-else class="record">
-                                            <span class="fas fa-heart red"></span>
-                                        </b-button>
-                                    </b-button-group>
-                                </b-button-group>
-                            </b-card-header>
-
-                            <b-collapse v-bind:id="'collapse-' + item.id">
-                                <b-card-body>
-                                    <b-card-text class="pb-3">
-                                        <strong>
-                                            <b-badge 
-                                                class="float-right movielink" 
-                                                target="_blank" 
-                                                v-bind:href="item.subtitleLink" 
-                                                pill 
-                                                variant="secondary"
-                                                v-if="item.subtitleLink !== false">
-                                                Mediathek <span class="fas fa-external-link-alt"></span>
-                                            </b-badge>
-                                            <div v-if="language === 'ger'" v-html="item.subtitle_ger"></div>
-                                            <div v-if="language === 'fre'" v-html="item.subtitle_fre"></div>
-                                        </strong>
-                                        <div v-if="language === 'ger'" v-html="item.desc_ger"></div>
-                                        <div v-if="language === 'fre'" v-html="item.desc_fre"></div>
-                                    </b-card-text>
-                                </b-card-body>
-                            </b-collapse>
-                        </b-card>
-                    </b-container>
-                    <div class="my-3" v-if="Object.keys(queryResult.data).length !== 0">
-                        <b-pagination
-                            v-model="queryResult.currentPage"
-                            :total-rows="queryResult.numFound"
-                            :per-page="queryResult.perPage"
-                            pills
-                            first-text="‹‹"
-                            last-text="››"
-                            align="center">
-                        </b-pagination>
+                                    <b-button v-on:click="queryResult.sort = 'asc'" v-if="queryResult.sort === 'desc'">
+                                        <span class="fas fa-sort-amount-down-alt"></span>
+                                    </b-button>
+                                </div>
+                            </b-input-goup>
+                        </b-row>
                     </div>
+                    <div class="mb-3">
+                        Ergebnisse pro Seite:
+                        <b-row class="mx-0">
+                            <b-form-input v-model="queryResult.perPage" type="number" min="1" max="100" v-on:keypress="removeNonNumeric($event)"></b-form-input>
+                        </b-row>
+                    </div>
+                </b-container>
+                <b-container>
+                    <div v-if="activeSide==='result'">
+                        <div>
+                            <b-button v-b-toggle.sidebar pill class="mb-3 px-4"><span class="fas fa-filter"></span></b-button>
+                        </div>
+                        <b-sidebar id="sidebar" bg-variant="dark" text-variant="light" shadow>
+                            <b-card class="m-3 text-dark">
+                                <b-form-group class="mb-0" label="Zeitraum:">
+                                    <b-form-checkbox-group stacked v-model="queryResult.dateFilter">
+                                        <b-form-checkbox value="yesterday">
+                                            Gestern <b-badge variant="secondary">{{queryResult.facets.yesterday}}</b-badge>
+                                        </b-form-checkbox>
+                                        <b-form-checkbox value="today">
+                                            Heute <b-badge variant="secondary">{{queryResult.facets.today}}</b-badge>
+                                        </b-form-checkbox>
+                                        <b-form-checkbox value="tomorrow">
+                                            Morgen <b-badge variant="secondary">{{queryResult.facets.tomorrow}}</b-badge>
+                                        </b-form-checkbox>
+                                        <b-form-checkbox value="previousN">
+                                            Vorherige {{queryResult.n}} Tage <b-badge variant="secondary">{{queryResult.facets.previousN}}</b-badge>
+                                        </b-form-checkbox>
+                                        <b-form-checkbox value="nextN">
+                                            Nächste {{queryResult.n}} Tage <b-badge variant="secondary">{{queryResult.facets.nextN}}</b-badge>
+                                        </b-form-checkbox>
+                                    </b-form-checkbox-group>
+                                </b-form-group>
+                            </b-card>
+                            <b-card class="m-3 text-dark" v-if="queryResult.facets.channel.length > 0">
+                                <b-form-group class="mb-0" label="Sender:">
+                                    <b-form-checkbox-group stacked v-model="queryResult.channelFilter">
+                                        <b-form-checkbox 
+                                            v-for="channel in queryResult.facets.channel"
+                                            v-bind:value="channel[0]">
+                                            {{channel[0]}} <b-badge variant="secondary">{{channel[1]}}</b-badge>
+                                        </b-form-checkbox>
+                                    </b-form-checkbox-group>
+                                </b-form-group>
+                            </b-card>
+                        </b-sidebar>
+                    </div>
+                    <div class="d-inline-block" style="font-size: 1.5rem;">
+                        <ul v-if="(queryResult.channelFilter.length + queryResult.dateFilter.length) > 0" class="list-inline d-inline-block mb-2">
+                            <li v-for="(tag, index) in queryResult.channelFilter" :key="tag" class="list-inline-item">
+                                <b-form-tag
+                                @remove="queryResult.channelFilter.splice(index, 1);"
+                                variant="secondary">
+                                {{ tag }}</b-form-tag>
+                            </li>
+                            <li v-if="queryResult.dateFilter.includes('today')" class="list-inline-item">
+                                <b-form-tag
+                                @remove="removeDateFilter('today');"
+                                variant="secondary">
+                                Heute</b-form-tag>
+                            </li>
+                            <li v-if="queryResult.dateFilter.includes('tomorrow')" class="list-inline-item">
+                                <b-form-tag
+                                @remove="removeDateFilter('tomorrow');"
+                                variant="secondary">
+                                Morgen</b-form-tag>
+                            </li>
+                            <li v-if="queryResult.dateFilter.includes('yesterday')" class="list-inline-item">
+                                <b-form-tag
+                                @remove="removeDateFilter('yesterday');"
+                                variant="secondary">
+                                Gestern</b-form-tag>
+                            </li>
+                            <li v-if="queryResult.dateFilter.includes('nextN')" class="list-inline-item">
+                                <b-form-tag
+                                @remove="removeDateFilter('nextN');"
+                                variant="secondary">
+                                Nächste {{queryResult.n}} Tage</b-form-tag>
+                            </li>
+                            <li v-if="queryResult.dateFilter.includes('previousN')" class="list-inline-item">
+                                <b-form-tag
+                                @remove="removeDateFilter('previousN');"
+                                variant="secondary">
+                                Vorherige {{queryResult.n}} Tage</b-form-tag>
+                            </li>
+                        </ul>
+                    </div>
+                </b-container>
+                <!-- pagination -->
+                <div class="my-3" v-if="Object.keys(queryResult.data).length !== 0">
+                    <b-pagination
+                        v-model="queryResult.currentPage"
+                        :total-rows="queryResult.numFound"
+                        :per-page="queryResult.perPage"
+                        pills
+                        first-text="‹‹"
+                        last-text="››"
+                        align="center">
+                    </b-pagination>
                 </div>
-            </template>
+                <!-- content -->
+                <b-container>
+                    <div v-if="queryResult.loading" class="d-flex justify-content-center">
+                        <b-spinner style="width: 3rem; height: 3rem;" label="Large Spinner"></b-spinner>
+                    </div>
+                    <div v-if="!queryResult.loading && Object.keys(queryResult.data).length === 0">
+                        <b-card>
+                            <h4 class="text-center">Keine Sendungen gefunden!</h4>
+                        </b-card>
+                    </div>
+                </b-container>
+                <b-container v-if="!queryResult.loading" v-for="item in queryResult.data" v-bind:key="item.id">
+                    <b-card no-body class="mb-1">
+                        <b-card-header 
+                            header-tag="header" 
+                            class="p-0 nobackground">
+                            <b-button-group class="resultheader">
+                                <b-button block 
+                                    class="header" 
+                                    v-b-toggle="'collapse-' + item.id">
+                                    <div class="broadcast">
+                                        <div class="info">
+                                            <div class="logo">
+                                                <img
+                                                    v-bind:src="'static/img/senderlogos/' + item.logofile" 
+                                                    v-bind:alt="item.channel">
+                                                </img>
+                                            </div>
+                                            <div class="date">
+                                                <ul>
+                                                    <li><span class="date">{{ parseStrToDate(item.start) }}</span></li>
+                                                    <li><strong>{{ parseStrToTime(item.start) }}</strong></li>
+                                                    <li><span class="until"> bis {{ parseStrToTime(item.stop) }}</span></li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                        <div class="title">
+                                            <h5 style="text-align: left;">
+                                                <div v-if="language === 'ger'" v-html="item.title_ger"></div>
+                                                <div v-if="language === 'fre'" v-html="item.title_fre"></div>
+                                            </h5>
+                                        </div>
+                                    </div>  
+                                </b-button>
+                                <b-button-group vertical>
+                                    <b-button v-bind:href="item.titleLink" v-if="item.titleLink !== false" target="_blank">
+                                        <span class="fas fa-external-link-alt"></span>
+                                    </b-button>
+                                    <b-button v-on:click="addFavourite(item)" v-if="!item.isFavourite" class="record">
+                                        <span class="fas fa-heart"></span>
+                                    </b-button>
+                                    <b-button v-on:click="removeFavourite(item)" v-else class="record">
+                                        <span class="fas fa-heart red"></span>
+                                    </b-button>
+                                </b-button-group>
+                            </b-button-group>
+                        </b-card-header>
+
+                        <b-collapse v-bind:id="'collapse-' + item.id">
+                            <b-card-body>
+                                <b-card-text class="pb-3">
+                                    <strong>
+                                        <b-badge 
+                                            class="float-right movielink" 
+                                            target="_blank" 
+                                            v-bind:href="item.subtitleLink" 
+                                            pill 
+                                            variant="secondary"
+                                            v-if="item.subtitleLink !== false">
+                                            Mediathek <span class="fas fa-external-link-alt"></span>
+                                        </b-badge>
+                                        <div v-if="language === 'ger'" v-html="item.subtitle_ger"></div>
+                                        <div v-if="language === 'fre'" v-html="item.subtitle_fre"></div>
+                                    </strong>
+                                    <div v-if="language === 'ger'" v-html="item.desc_ger"></div>
+                                    <div v-if="language === 'fre'" v-html="item.desc_fre"></div>
+                                </b-card-text>
+                            </b-card-body>
+                        </b-collapse>
+                    </b-card>
+                </b-container>
+                <div class="my-3" v-if="Object.keys(queryResult.data).length !== 0">
+                    <b-pagination
+                        v-model="queryResult.currentPage"
+                        :total-rows="queryResult.numFound"
+                        :per-page="queryResult.perPage"
+                        pills
+                        first-text="‹‹"
+                        last-text="››"
+                        align="center">
+                    </b-pagination>
+                </div>
+            </div>
         </div>
         <!-- result menu end -->
         <!-- settings menu -->
@@ -509,7 +555,7 @@
                     <b-collapse id="collapse-3" visible class="mt-2">
                         <b-card-body>
                             <label>Nächste <i>n</i> Tage:</label>
-                            <b-form-input type="number" v-model="queryResult.nextN"></b-form-input>
+                            <b-form-input type="number" v-model="queryResult.n" min="0" v-on:keypress="removeNonNumeric($event)"></b-form-input>
                         </b-card-body>
                     </b-collapse>
                 </b-card>

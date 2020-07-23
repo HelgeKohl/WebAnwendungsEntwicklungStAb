@@ -44,7 +44,7 @@ var filter = new Vue({
             currentPage: 1,
             perPage: 10,
             numFound: 0,
-            nextN: 5,
+            n: 5,
             dateFilter: [],
             channelFilter: [],
             loading: false,
@@ -190,15 +190,25 @@ var filter = new Vue({
                 console.log(err);
             });
         },
-        toggleFacet(facet){
-            if(filter.queryResult.filterquery === facet){
-                filter.queryResult.filterquery = "";
-            }
-            else filter.queryResult.filterquery = facet;
+        // removes datefilter
+        removeDateFilter(dateFilter){
+            var index = filter.queryResult.dateFilter.indexOf(dateFilter);
+            filter.queryResult.dateFilter.splice(index, 1);
         },
+        // prevents input of +/-/./,
+        removeNonNumeric(event){
+            // return value.replace( new RegExp(/\D/g), "" );
+            event = (event) ? event : window.event;
+            var charCode = (event.which) ? event.which : event.keyCode;
+            if ((charCode > 31 && (charCode < 48 || charCode > 57))) {
+                event.preventDefault();;
+            } else {
+                return true;
+      }
+        }
     },
     watch: {
-        // update shown data by pagination
+        // on change get new data
         'queryResult.currentPage': function(){
             if(filter.activeSide === 'result'){
                 requestData();
@@ -217,7 +227,6 @@ var filter = new Vue({
                 requestFavourites();
             }
         },
-        // update shown data by language
         'language': function(){
             requestData();
         },
@@ -234,7 +243,7 @@ var filter = new Vue({
         },
         'queryResult.channelFilter': function(){
             requestData();
-        }
+        },
     }
 })
 
@@ -272,7 +281,7 @@ function requestData(){
         currentPage: filter.queryResult.currentPage,
         sortBy: filter.queryResult.sortBy,
         sort: filter.queryResult.sort,
-        nextN: filter.queryResult.nextN,
+        n: filter.queryResult.n,
         now: filter.today.slice(0, -10) + "Z",
     }))
     .then(response => {
@@ -288,7 +297,9 @@ function requestData(){
         if(filter.queryResult.dateFilter.length === 0){
             filter.queryResult.facets['today'] = response.data.facet_counts.facet_queries[Object.keys(response.data.facet_counts.facet_queries)[0]];
             filter.queryResult.facets['tomorrow'] = response.data.facet_counts.facet_queries[Object.keys(response.data.facet_counts.facet_queries)[1]];
-            filter.queryResult.facets['nextN'] = response.data.facet_counts.facet_queries[Object.keys(response.data.facet_counts.facet_queries)[2]];
+            filter.queryResult.facets['yesterday'] = response.data.facet_counts.facet_queries[Object.keys(response.data.facet_counts.facet_queries)[2]];
+            filter.queryResult.facets['nextN'] = response.data.facet_counts.facet_queries[Object.keys(response.data.facet_counts.facet_queries)[3]];
+            filter.queryResult.facets['previousN'] = response.data.facet_counts.facet_queries[Object.keys(response.data.facet_counts.facet_queries)[4]];
         }
         
         // channel facets
