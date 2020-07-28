@@ -151,7 +151,7 @@ var filter = new Vue({
                     type: type,
                     language: this.language,
                 })).then(response => {
-                    filter.suggestions = response.data
+                    filter.suggestions = response.data;
                 }).catch(err => {
                     console.log(err);
                 });
@@ -160,12 +160,9 @@ var filter = new Vue({
         // add item to favourite list
         addFavourite(item){
             axios.post("addFavourite", JSON.stringify(item))
-            .then(response => {
+            .then(function() {
                 if(filter.activeSide === 'result'){
                     requestData();
-                }
-                else if(filter.activeSide === 'favourites'){
-                    requestFavourites();
                 }
             }).catch(err => {
                 console.log(err);
@@ -174,7 +171,7 @@ var filter = new Vue({
         // remove item from favourite list
         removeFavourite(item){
             axios.post("removeFavourite", JSON.stringify(item))
-            .then(response => {
+            .then(function() {
                 if(filter.activeSide === 'result'){
                     requestData();
                 }
@@ -233,6 +230,7 @@ var filter = new Vue({
             requestData();
         },
         'queryResult.dateFilter': function(){
+            filter.queryResult.channelFilter = [];
             requestData();
         },
         'queryResult.channelFilter': function(){
@@ -288,13 +286,11 @@ function requestData(){
         }
 
         // date facets
-        if(filter.queryResult.dateFilter.length === 0){
-            filter.queryResult.facets['today'] = response.data.facet_counts.facet_queries[Object.keys(response.data.facet_counts.facet_queries)[0]];
-            filter.queryResult.facets['tomorrow'] = response.data.facet_counts.facet_queries[Object.keys(response.data.facet_counts.facet_queries)[1]];
-            filter.queryResult.facets['yesterday'] = response.data.facet_counts.facet_queries[Object.keys(response.data.facet_counts.facet_queries)[2]];
-            filter.queryResult.facets['nextN'] = response.data.facet_counts.facet_queries[Object.keys(response.data.facet_counts.facet_queries)[3]];
-            filter.queryResult.facets['previousN'] = response.data.facet_counts.facet_queries[Object.keys(response.data.facet_counts.facet_queries)[4]];
-        }
+        filter.queryResult.facets['today'] = response.data.facet_counts.facet_queries[Object.keys(response.data.facet_counts.facet_queries)[0]];
+        filter.queryResult.facets['tomorrow'] = response.data.facet_counts.facet_queries[Object.keys(response.data.facet_counts.facet_queries)[1]];
+        filter.queryResult.facets['yesterday'] = response.data.facet_counts.facet_queries[Object.keys(response.data.facet_counts.facet_queries)[2]];
+        filter.queryResult.facets['nextN'] = response.data.facet_counts.facet_queries[Object.keys(response.data.facet_counts.facet_queries)[3]];
+        filter.queryResult.facets['previousN'] = response.data.facet_counts.facet_queries[Object.keys(response.data.facet_counts.facet_queries)[4]];
         
         // channel facets
         if(filter.queryResult.channelFilter.length === 0){

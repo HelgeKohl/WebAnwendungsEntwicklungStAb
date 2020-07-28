@@ -40,20 +40,24 @@ function buildQuery(data){
                 query += " OR ";
             }
             if(element.negate){
+                query += "(*:* AND "
                 query += "-";
             }
             // concat searchfield to query
             query += "channel:" + "\"" + replaceAll(element.input, "\"", "\\\"") + "\"";
+            if(element.negate){
+                query += ")"
+            }
         });
-        query += ")";
+        query += ") ";
     }
 
     if(query !== "") query += "AND ";
 
     // any language field must be != null
     query +=  "(" + "title_" + data['language'] + ":[* TO *]"
-                                + " AND title_" + data['language'] + ":[* TO *]"
-                                + " AND title_" + data['language'] + ":[* TO *]" + ")";
+                                + " OR subtitle_" + data['language'] + ":[* TO *]"
+                                + " OR desc_" + data['language'] + ":[* TO *]" + ")";
 
     var facets = {}  
 
@@ -76,7 +80,7 @@ function buildQuery(data){
     var filter = createFilterQuery(facets, data['filter']);
     
     
-    if(data['filter'].length === 0) filter += "start:" +encodeURIComponent("[* TO *]");
+    if(data['filter'].length === 0) filter += "start:" + encodeURIComponent("[* TO *]");
 
     // query daterange for start and stop, default is [* TO *]
     var startrange = " AND start:[" + data['start'].from + " TO " + data['start'].till + "]";
@@ -91,7 +95,6 @@ function buildQuery(data){
 
     // result range
     query += "&rows="+ data['rows'] + "&start=" + (data['currentPage'] * data['rows'] - data['rows']);
-    console.log(query)
     return query;
 }
 
@@ -208,7 +211,7 @@ function addStaffLinks(description){
     })
 
     // matches artists
-    artistExp = new RegExp(/(?:(?:^[A-Za-zÀ-ÖØ-öø-ÿ ]*)(?= \()|(?<=^[A-Za-zÀ-ÖØ-öø-ÿ ]+ - )([A-Za-zÀ-ÖØ-öø-ÿ ]*))/gm);
+    artistExp = new RegExp(/(?<=(Darsteller:)(\n.*)*)((?:(?:^[A-Za-zÀ-ÖØ-öø-ÿ ]*)(?= \()|(?<=^[A-Za-zÀ-ÖØ-öø-ÿ ]+ - )([A-Za-zÀ-ÖØ-öø-ÿ ]*)))/gm);
     description = description.replace(artistExp, (match) => {
         return "<a href=\"https://www.imdb.com/find?q=" + match + "\" target=\"_blank\">" + match + "</a>";
     })
@@ -289,7 +292,7 @@ http.createServer(function (req, res) {
                     res.setHeader('Content-Type', 'application/json');
                     res.end(JSON.stringify(response.data));
                 }).catch((err) => {
-                    // console.log(err);
+                    console.log(err);
                     fs.readFile('./404.html', function(error, content) {
                         res.writeHead(404, { 'Content-Type': 'text/html' });
                         res.end(content, 'utf-8');
@@ -405,7 +408,7 @@ http.createServer(function (req, res) {
 
                 // build query
                 strQuery = buildSuggestionQuery(post);
-
+                
                 // send request
                 axios.get(strQuery)
                 .then((response) => {
@@ -416,7 +419,9 @@ http.createServer(function (req, res) {
                     // prepare response
                     var suggestionResponse = response.data.suggest[suggester][input].suggestions;
                     suggestionResponse.forEach(element => {
-                        suggestions.push(element['term']);
+                        if(!suggestions.includes(replaceAll(element['term'], /<\/?b>/, ""))){
+                            suggestions.push(replaceAll(element['term'], /<\/?b>/, ""));
+                        }
                     });
 
                     res.setHeader('Content-Type', 'application/json');

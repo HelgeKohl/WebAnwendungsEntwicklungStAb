@@ -171,7 +171,6 @@
                                         v-model:value="item.input" 
                                         class="form-control"
                                         v-on:input="getSuggestion(item)"
-                                        v-on:focus="suggestions = []"
                                         autocomplete="off">
                                     </b-form-input>
                                     <datalist v-bind:id="'channel-list-' + item.id">

@@ -1226,44 +1226,42 @@
     <searchComponent name="suggest" class="solr.SuggestComponent">
       <lst name="suggester">
         <str name="name">title_suggester_ger</str>
-        <str name="lookupImpl">AnalyzingLookupFactory</str>
+        <str name="lookupImpl">AnalyzingInfixLookupFactory</str>
         <str name="dictionaryImpl">DocumentDictionaryFactory</str>
         <str name="field">title_ger</str>
         <str name="suggestAnalyzerFieldType">text_de</str>
-        <str name="buildOnStartup">false</str>
       </lst>
       <lst name="suggester">
         <str name="name">title_suggester_fre</str>
-        <str name="lookupImpl">AnalyzingLookupFactory</str>
+        <str name="lookupImpl">AnalyzingInfixLookupFactory</str>
         <str name="dictionaryImpl">DocumentDictionaryFactory</str>
-        <str name="field">title_ger</str>
+        <str name="field">title_fre</str>
         <str name="suggestAnalyzerFieldType">text_fr</str>
-        <str name="buildOnStartup">false</str>
       </lst>
       <lst name="suggester">
         <str name="name">subtitle_suggester_ger</str>
-        <str name="lookupImpl">AnalyzingLookupFactory</str>
+        <str name="lookupImpl">AnalyzingInfixLookupFactory</str>
         <str name="dictionaryImpl">DocumentDictionaryFactory</str>
-        <str name="field">subtitle_fre</str>
+        <str name="field">subtitle_ger</str>
         <str name="suggestAnalyzerFieldType">text_de</str>
       </lst>
       <lst name="suggester">
         <str name="name">subtitle_suggester_fre</str>
-        <str name="lookupImpl">AnalyzingLookupFactory</str>
+        <str name="lookupImpl">AnalyzingInfixLookupFactory</str>
         <str name="dictionaryImpl">DocumentDictionaryFactory</str>
         <str name="field">subtitle_fre</str>
         <str name="suggestAnalyzerFieldType">text_fr</str>
       </lst>
       <lst name="suggester">
         <str name="name">channel_suggester_ger</str>
-        <str name="lookupImpl">AnalyzingLookupFactory</str>
+        <str name="lookupImpl">AnalyzingInfixLookupFactory</str>
         <str name="dictionaryImpl">DocumentDictionaryFactory</str>
         <str name="field">channel</str>
         <str name="suggestAnalyzerFieldType">text_de</str>
       </lst>
       <lst name="suggester">
         <str name="name">channel_suggester_fre</str>
-        <str name="lookupImpl">AnalyzingLookupFactory</str>
+        <str name="lookupImpl">AnalyzingInfixLookupFactory</str>
         <str name="dictionaryImpl">DocumentDictionaryFactory</str>
         <str name="field">channel</str>
         <str name="suggestAnalyzerFieldType">text_fr</str>
@@ -1273,7 +1271,6 @@
       <lst name="defaults">
         <str name="suggest">true</str>
         <str name="suggest.count">10</str>
-        <str name="suggest.dictionary">title_suggester</str>
       </lst>
       <arr name="components">
         <str>suggest</str>

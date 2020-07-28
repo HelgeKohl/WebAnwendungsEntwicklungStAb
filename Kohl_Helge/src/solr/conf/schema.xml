@@ -2,7 +2,7 @@
 <!-- Solr managed schema - automatically generated - DO NOT EDIT -->
 <schema name="default-config" version="1.6">
   <uniqueKey>id</uniqueKey>
-  <fieldType name="_nest_path_" class="solr.NestPathField" maxCharsForDocValues="-1" omitNorms="true" omitTermFreqAndPositions="true" stored="false"/>
+  <fieldType name="_nest_path_" class="solr.NestPathField" omitTermFreqAndPositions="true" omitNorms="true" maxCharsForDocValues="-1" stored="false"/>
   <fieldType name="ancestor_path" class="solr.TextField">
     <analyzer type="index">
       <tokenizer class="solr.KeywordTokenizerFactory"/>
@@ -454,8 +454,8 @@
   <field multiValued="false" name="desc_fre" type="text_fr" />
   <field multiValued="false" name="desc_ger" type="text_de" />
   <field multiValued="false" name="id" type="string" indexed="true" required="true" stored="true"/>
-  <field multiValued="false" name="start" type="pdates" />
-  <field multiValued="false" name="stop" type="pdates" />
+  <field multiValued="false" name="start" type="pdate" />
+  <field multiValued="false" name="stop" type="pdate" />
   <field multiValued="false" name="subtitle_fre" type="text_fr" />
   <field multiValued="false" name="subtitle_ger" type="text_de" />
   <field multiValued="false" name="title_fre" type="text_fr" />
